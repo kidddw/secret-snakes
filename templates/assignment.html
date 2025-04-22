@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Your Assignment - Secret Santa{% endblock %}
+
+{% block content %}
+
+<div class="assignment-page-container common-page-container">
+
+    <div class="assignment-left-panel common-panel">
+
+        {% if assignment %}
+
+            <h2>Assignment for {{ assignment.year }}</h2>
+            <div class="line"></div>
+            <div class="line-padding"></div>
+
+            <div class="property-container">
+
+                <div class="current-property-container">
+
+                    <div class="property-title">
+                        <strong>You are assigned to</strong>
+                    </div>
+
+                    <div class="property-value">
+                        {{ assigned_user.username }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="property-container">
+
+                <div class="current-property-container">
+
+                    <div class="property-title">
+                        <strong>Shipping Address</strong>
+                    </div>
+
+                    <div class="property-value">
+                        <address>
+                            {{ assigned_user.first_name }} {{ assigned_user.last_name }}<br>
+                            {{ assigned_user.shipping_street_address }}
+                            {% if assigned_user.shipping_unit %}
+                                , {{ assigned_user.shipping_unit }}
+                            {% endif %}<br>
+                            {{ assigned_user.shipping_city }}, {{ assigned_user.shipping_state }} {{ assigned_user.shipping_zipcode }}
+                        </address>
+                    </div>
+
+                </div>
+
+            </div>
+
+        {% else %}
+
+            <p>You do not have an assignment yet.</p>
+
+        {% endif %}
+
+    </div>
+
+    <div class="assignment-tips-panel common-panel">
+
+        <h2>Tips Left for {{ assigned_user.first_name }}</h2>
+        <div class="line"></div>
+        <div class="line-padding"></div>
+
+        <div class="assignment-tips-container">
+
+            {% if current_tips %}
+
+                <ul class="assignment-tips-list">
+
+                    {% for tip in current_tips %}
+
+                        <li class="assignment-tip-item">
+
+                            <i>{{ tip.content }}</i>
+                            <br>
+                            <small>{{ tip.created_at.strftime('%b. %d %Y')}}</small>
+
+                        </li>
+
+                    {% endfor %}
+
+                </ul>
+
+            {% else %}
+
+                <p>No tips have been left for this user yet.</p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Secret Santa{% endblock %}
+
+{% block content %}
+
+<div class="large-container">
+
+    <div class="assignments-section">
+        <h3>Your Assignments</h3>
+        {% if assignments %}
+            {% for assignment in assignments %}
+                <div class="assignment {% if assignment.year != assignment_year %}past-assignment{% endif %}">
+                    {% if assignment.year == assignment_year %}
+                        <a href="/assignment" class="current-assignment-link">
+                            <p>
+                                <strong>Year {{ assignment.year }}:</strong> {{ assignment.assigned_user.first_name }} {{ assignment.assigned_user.last_name }}
+                                &nbsp; <span class="tip-count">(Tips: {{ number_of_tips }})</span>
+                            </p>
+                        </a>
+                    {% else %}
+                        <p><strong>Year {{ assignment.year }}:</strong> {{ assignment.assigned_user.first_name }} {{ assignment.assigned_user.last_name }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No assignments yet.</p>
+        {% endif %}
+    </div>
+
+    <h2>Welcome, {{ user.first_name }} {{ user.last_name }}!</h2>
+    <h3>Your Information</h3>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+
+    <h3>Shipping Address</h3>
+    <address>
+        {{ user.first_name }} {{ user.last_name }}<br>
+        {{ user.shipping_street_address }}
+        {% if user.shipping_unit %}
+            , {{ user.shipping_unit }}
+        {% endif %}<br>
+        {{ user.shipping_city }}, {{ user.shipping_state }} {{ user.shipping_zipcode }}
+    </address>
+
+    <div class="update-buttons" style="margin-top: 20px;">
+        <button id="show-email-form" class="button">Update Email</button>
+        <button id="show-shipping-form" class="button">Update Shipping Address</button>
+    </div>
+
+    <form id="update-email-form" style="display: none;">
+        <h4>Update Email</h4>
+        <div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="{{ user.email }}">
+        </div>
+        <button type="submit" class="button">Save Email</button>
+    </form>
+
+    <form id="update-shipping-form" style="display: none;">
+        <h4>Update Shipping Address</h4>
+        <div>
+            <label for="first_name">First Name:</label>
+            <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}">
+        </div>
+        <div>
+            <label for="last_name">Last Name:</label>
+            <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}">
+        </div>
+        <div>
+            <label for="shipping_street_address">Street Address:</label>
+            <input type="text" id="shipping_street_address" name="shipping_street_address" value="{{ user.shipping_street_address }}">
+        </div>
+        <div>
+            <label for="shipping_unit">Unit:</label>
+            <input type="text" id="shipping_unit" name="shipping_unit" value="{{ user.shipping_unit }}">
+        </div>
+        <div>
+            <label for="shipping_city">City:</label>
+            <input type="text" id="shipping_city" name="shipping_city" value="{{ user.shipping_city }}">
+        </div>
+        <div>
+            <label for="shipping_zipcode">Zipcode:</label>
+            <input type="text" id="shipping_zipcode" name="shipping_zipcode" value="{{ user.shipping_zipcode }}">
+        </div>
+        <div>
+            <label for="shipping_state">State:</label>
+            <input type="text" id="shipping_state" name="shipping_state" value="{{ user.shipping_state }}">
+        </div>
+        <button type="submit" class="button">Save Shipping Address</button>
+    </form>
+</div>
+{% if is_admin %}
+<div class="admin-section">
+    <h3>Admin Functions</h3>
+    <form id="year-form">
+        <h4>Set Current Assignment Year</h4>
+        <div>
+            <label for="assignment_year">Assignment Year:</label>
+            <input type="number" id="assignment_year" name="assignment_year" required value="{{ assignment_year }}">
+        </div>
+        <button type="submit" class="button">Save Year</button>
+    </form>
+    <form id="assign-form">
+        <h4>Create Assignments</h4>
+        <div>
+            <label for="year">Year:</label>
+            <input type="number" id="year" name="year" required>
+        </div>
+        <div>
+            <label>Participants:</label>
+            <div class="participant-list">
+                {% for user in all_users %}
+                <label>
+                    <input type="checkbox" name="participants" value="{{ user.id }}">
+                    {{ user.first_name }} {{ user.last_name }} ({{ user.username }})
+                </label><br>
+                {% endfor %}
+            </div>
+        </div>
+        <button type="submit" class="button">Create Assignments</button>
+    </form>
+</div>
+{% endif %}
+
+<script>
+document.getElementById('show-email-form').addEventListener('click', function() {
+    toggleForm('update-email-form');
+});
+
+document.getElementById('show-shipping-form').addEventListener('click', function() {
+    toggleForm('update-shipping-form');
+});
+
+function toggleForm(formId) {
+    var form = document.getElementById(formId);
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+document.getElementById('update-email-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    updateProfile(this, '/update-profile');
+});
+
+document.getElementById('update-shipping-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    updateProfile(this, '/update-profile');
+});
+
+function updateProfile(form, endpoint) {
+    const formData = new FormData(form);
+    const jsonData = Object.fromEntries(formData.entries());
+
+    fetch(endpoint, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify(jsonData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            if (response.status === 401) {
+                // Handle unauthorized access (e.g., redirect to login)
+                window.location.href = '/login';
+                throw new Error('Unauthorized access. Please log in again.');
+            }
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert(data.message);
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+    });
+}
+
+{% if is_admin %}
+document.getElementById('assign-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const year = document.getElementById('year').value;
+    const participants = Array.from(document.querySelectorAll('input[name="participants"]:checked'))
+        .map(checkbox => checkbox.value);
+
+    fetch('/admin/assign', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            year: parseInt(year),
+            participants: participants
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert(data.message);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+    });
+});
+document.getElementById('year-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const assignmentYear = document.getElementById('assignment_year').value;
+
+    fetch('/admin/set-assignment-year', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            assignment_year: parseInt(assignmentYear)
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert(data.message);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+    });
+});
+{% endif %}
+</script>
+
+{% endblock %}

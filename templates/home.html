@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Secret Santa{% endblock %}
+
+{% block content %}
+
+<div class="home-container">
+
+    {% if not user_authenticated %}
+
+        <div class="login-container">
+
+            <h2>Login</h2>
+
+            <form id="login-form">
+
+                <div>
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div>
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="button">Login</button>
+            </form>
+<!--            <p>-->
+<!--                <a href="/forgot-password">Forgot Password?</a> |-->
+<!--                <a href="/forgot-username">Forgot Username?</a>-->
+<!--            </p>-->
+            <p>Don't have an account? <a href="/register">Register here</a></p>
+
+        </div>
+
+    {% else %}
+
+        <p>You are logged in. Check your assignment or add gift tips!</p>
+        <button id="logout-button" class="button">Logout</button>
+
+    {% endif %}
+
+</div>
+
+<script>
+    {% if not user_authenticated %}
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const formData = new URLSearchParams();
+        formData.append('username', username);
+        formData.append('password', password);
+
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData,
+                redirect: 'follow'
+            });
+
+            if (response.ok) {
+                window.location.href = '/profile';
+            } else {
+                const errorData = await response.json();
+                alert('Login failed: ' + errorData.detail);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    });
+    {% else %}
+    document.getElementById('logout-button').addEventListener('click', function() {
+        window.location.href = '/logout';
+    });
+    {% endif %}
+</script>
+
+
+
+
+{% endblock %}

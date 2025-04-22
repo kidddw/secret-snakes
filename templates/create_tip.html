@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Leave a Tip - Secret Santa{% endblock %}
+
+{% block content %}
+
+<div class="tip-page-container common-page-container">
+
+    <div class="tip-form-container common-panel">
+
+        <h2>Leave an Anonymous Tip</h2>
+        <div class="line"></div>
+        <div class="line-padding"></div>
+
+        <p>This will send a notification to the SNAKE that is <u>assigned</u> to this person.</p>
+
+        {% if error %}
+
+        <p class="error">{{ error }}</p>
+
+        {% else %}
+
+        <form id="tip-form" method="post" action="/tips/create">
+
+
+            <div class="property-container">
+
+                <div class="current-property-container">
+
+                    <div class="property-title">
+                        <strong><label for="subject_user_id">Select SNAKE you have a tip for:</label></strong>
+                    </div>
+
+                    <div class="property-value">
+
+                        <select name="subject_user_id" class="tip-subject-select" id="subject_user_id" required>
+
+                            {% for participant in participants %}
+                            <option value="{{ participant.id }}">{{ participant.first_name }} {{ participant.last_name }} ({{ participant.username }})</option>
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="property-container">
+
+                <div class="current-property-container">
+
+                    <div class="property-title">
+                        <strong><label for="content">Tip:</label></strong>
+                    </div>
+
+                    <div class="property-value">
+
+                        <textarea id="content" class="tip-textarea" name="content" rows="4" cols="50" required></textarea>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <button type="submit" class="text-button">Submit Tip</button>
+
+        </form>
+
+        {% endif %}
+
+    </div>
+
+    <div class="past-tips-container common-panel">
+
+        <h2>Your Past Tips For This Year</h2>
+        <div class="line"></div>
+        <div class="line-padding"></div>
+
+        <div class="assignment-tips-container">
+
+            {% if past_tips %}
+
+                <ul class="assignment-tips-list">
+
+                    {% for tip in past_tips %}
+
+                    <li class="tips-tip-item-container">
+
+                        <div class="tips-tip-item assignment-tip-item">
+                            <strong>For {{ tip.subject_user.username }}:</strong> <i>{{ tip.content }}</i>
+                            <br>
+                            <small>{{ tip.created_at.strftime('%b. %d %Y')}}</small>
+                        </div>
+
+                        <div class="tip-actions">
+
+                            <button class="delete-tip-button text-button" data-tip-id="{{ tip.id }}">Delete</button>
+                            <button class="update-tip-button text-button" data-tip-id="{{ tip.id }}">Update</button>
+
+                        </div>
+
+                    </li>
+
+
+                    {% endfor %}
+
+                </ul>
+
+            {% else %}
+
+                <p>You have not given any tips.</p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-confirmation-modal" class="modal">
+        <div class="modal-content">
+            <p>Are you sure you want to delete this tip?</p>
+            <button id="confirm-delete">Yes, Delete</button>
+            <button id="cancel-delete">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Update Tip Modal -->
+    <div id="update-tip-modal" class="modal">
+        <div class="modal-content">
+            <label for="update-tip-content">Edit Tip:</label>
+            <textarea id="update-tip-content" rows="4" cols="50"></textarea>
+            <button id="confirm-update">Update</button>
+            <button id="cancel-update">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteConfirmationModal = document.getElementById('delete-confirmation-modal');
+    const updateTipModal = document.getElementById('update-tip-modal');
+    let tipToDeleteId = null;
+    let tipToUpdateId = null;
+
+    // Tip creation handling
+    document.getElementById('tip-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        try {
+            const response = await fetch('/tips/create', {
+                method: 'POST',
+                body: formData
+            });
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Failed to create tip. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    });
+
+    // Delete Tip Handling
+    document.querySelectorAll('.delete-tip-button').forEach(button => {
+        button.addEventListener('click', function() {
+            tipToDeleteId = this.dataset.tipId;
+            deleteConfirmationModal.style.display = 'block';
+        });
+    });
+
+    document.getElementById('cancel-delete').addEventListener('click', function() {
+        deleteConfirmationModal.style.display = 'none';
+        tipToDeleteId = null;
+    });
+
+    document.getElementById('confirm-delete').addEventListener('click', async function() {
+        if (tipToDeleteId) {
+            try {
+                const response = await fetch(`/tips/${tipToDeleteId}/delete`, {
+                    method: 'POST',
+                });
+                if (response.ok) {
+                    deleteConfirmationModal.style.display = 'none';
+                    window.location.reload();
+                } else {
+                    alert('Failed to delete tip. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while deleting the tip.');
+            }
+            tipToDeleteId = null;
+        }
+    });
+
+    // Update Tip Handling
+    document.querySelectorAll('.update-tip-button').forEach(button => {
+        button.addEventListener('click', function() {
+            tipToUpdateId = this.dataset.tipId;
+            const tipContent = this.closest('.tip-item').querySelector('p:nth-child(3)').textContent.replace('Tip:', '').trim();
+            document.getElementById('update-tip-content').value = tipContent;
+            updateTipModal.style.display = 'block';
+        });
+    });
+
+    document.getElementById('cancel-update').addEventListener('click', function() {
+        updateTipModal.style.display = 'none';
+        tipToUpdateId = null;
+    });
+
+    document.getElementById('confirm-update').addEventListener('click', async function() {
+        if (tipToUpdateId) {
+            const updatedContent = document.getElementById('update-tip-content').value;
+            try {
+                const response = await fetch(`/tips/${tipToUpdateId}/update`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `content=${encodeURIComponent(updatedContent)}`
+                });
+                if (response.ok) {
+                    updateTipModal.style.display = 'none';
+                    window.location.reload();
+                } else {
+                    alert('Failed to update tip. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while updating the tip.');
+            }
+            tipToUpdateId = null;
+        }
+    });
+});
+</script>
+{% endblock %}

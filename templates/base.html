@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Secret Snakes{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div id="branding" class="branding">
+
+                <div class="image-container">
+                    <img class="image-placeholder" src="../static/assets/images/IMG-20250119-WA0003_2.png" alt="Description of the image" width="80" height="80">
+                </div>
+
+                <div>
+                    <h1>Secret Snakes</h1>
+                    <i>Have yourself a shitty little Snakesmas &#128276</i>
+                </div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    {% if user_authenticated %}
+                        <li><a href="/profile">Profile</a></li>
+                        <li><a href="/assignment">Assignment</a></li>
+                        <li><a href="/tips/create">Give Tips</a></li>
+                        <li><a href="/logout">Logout</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="header-container">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
