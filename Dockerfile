@@ -1,4 +1,4 @@
-MAINTAINER Daniel Kidd, daniel.wayne.kidd@gmail.com
+# MAINTAINER Daniel Kidd, daniel.wayne.kidd@gmail.com
 
 # Use official Python image as base
 FROM python:3.11

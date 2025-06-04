@@ -8,3 +8,4 @@ This project is licensed under the terms of the MIT license.
 
 python -m pytest -s      
 uvicorn app.main:app --reload
+http://localhost:8000/
