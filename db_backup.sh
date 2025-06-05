@@ -7,7 +7,7 @@ DB_FILE="secret_snakes.db"
 BACKUP_DIR="/home/ec2-user/backups"
 
 # S3 bucket name
-S3_BUCKET="your-bucket-name"
+S3_BUCKET="secret-snakes"
 
 # Ensure backup directory exists
 mkdir -p "$BACKUP_DIR"
@@ -23,4 +23,4 @@ sqlite3 "$DB_FILE" ".backup '$BACKUP_FILE'"
 gzip "$BACKUP_FILE"
 
 # Upload compressed backup to S3
-aws s3 cp "$BACKUP_FILE.gz" "s3://$S3_BUCKET/backups/backup-$DATE.db.gz"
+aws s3 cp "$BACKUP_FILE.gz" "s3://$S3_BUCKET/database-backup/backup-$DATE.db.gz"
