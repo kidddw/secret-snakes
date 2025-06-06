@@ -1,5 +1,6 @@
 from typing import List
 import datetime
+from distutils.util import strtobool
 from fastapi import FastAPI, Depends, HTTPException, Request, Form, status
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
@@ -59,6 +60,7 @@ async def home(
 ):
     """Home page."""
 
+    # If registration is not allowed, redirect to login page
     unauthenticated_response = templates.TemplateResponse(
         "home.html",
         {"request": request, "user_authenticated": False}
@@ -71,8 +73,6 @@ async def home(
     if not access_token:
         return unauthenticated_response
 
-    logger.info(f"access token: {access_token}")
-
     # Get current user and generate context for template response
     current_user = auth.get_current_user(db, access_token)
 
@@ -83,18 +83,42 @@ async def home(
     # If authentication token in session and valid, display home page with user is authenticated set to true
     return templates.TemplateResponse(
         "home.html",
-        {"request": request, "user_authenticated": True}
+        {"request": request, "user_authenticated": True, "allow_registration": allow_registration}
     )
 
 
 @app.get("/home", response_class=HTMLResponse)
-async def home(request: Request):
+async def home(
+    request: Request, 
+    db: Session = Depends(database.get_db)
+): 
     return templates.TemplateResponse("home.html", {"request": request})
 
 
+@app.get("/check-registration-status")
+async def check_registration_status(
+    db: Session = Depends(database.get_db)
+):
+    
+    # Check if registration is allowed
+    allow_registration = config.get_config(db).get("allow_registration", "True")
+    allow_registration = (allow_registration == "True")
+
+    print('CHECKING REGISTRATION STATUS', allow_registration, type(allow_registration))
+
+    return {"allow_registration": allow_registration}
+
+
 @app.get("/register")
-async def register_page(request: Request):
+async def register_page(
+    request: Request,
+    db: Session = Depends(database.get_db)
+):
     """Rendering the register page"""
+
+    # Check if registration is allowed
+    auth.get_allowed_registration()
+
     return templates.TemplateResponse("register.html", {"request": request})
 
 
@@ -113,6 +137,9 @@ async def register(
     db: Session = Depends(database.get_db)
 ):
     """Register a new user."""
+
+    # Check if registration is allowed
+    auth.get_allowed_registration()
 
     # Query for this username in the users table
     db_user = db.query(models.User).filter(models.User.username == username).first()
@@ -356,9 +383,12 @@ async def profile(
         latest_year = db.query(func.max(models.Assignment.year)).scalar()
 
         # Get the current assignment year
-        print(config.get_config(db))
         assignment_year = config.get_config(db)['assignment_year']
         assignment_year = int(assignment_year) if assignment_year else latest_year
+
+        # Check if registration is allowed
+        allow_registration = config.get_config(db).get("allow_registration", "True")
+        allow_registration = (allow_registration == "True")
 
         # Get number of tips for current assignemnt
         number_of_tips = tips.count_tips_for_current_assignment(db, current_user.id, assignment_year)
@@ -370,6 +400,7 @@ async def profile(
             "all_users": all_users,
             "assignments": assignments,
             "assignment_year": assignment_year,
+            "allow_registration": allow_registration,
             "number_of_tips": number_of_tips,
             "user_authenticated": True
         }
@@ -425,16 +456,38 @@ def list_users(
     # Get the token from the session
     access_token = request.session.get("access_token")
 
-    # Get current user and generate context for template response
+    # Get current user and check admin
     current_user = auth.get_current_user(db, access_token)
-
-    # Check if current user is admin
     auth.get_current_admin_user(current_user)
 
     # Query users
     users = db.query(models.User).all()
 
     return users
+
+
+@app.post("/admin/toggle-registration", response_model=dict)
+def toggle_registration(
+    request: Request,
+    allow_registration: bool = Form(...),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Allows admin to enable or disable new user registration.
+    """
+
+    # Get the token from the session
+    access_token = request.session.get("access_token")
+
+    # Get current user and check admin
+    current_user = auth.get_current_user(db, access_token)
+    auth.get_current_admin_user(current_user)
+
+    # Set the configuration for registration
+    config.set_config(db, "allow_registration", str(allow_registration))
+
+    status_str = "enabled" if allow_registration else "disabled"
+    return {"message": f"Registration has been {status_str}."}
 
 
 @app.post("/admin/set-assignment-year")

@@ -9,8 +9,8 @@ def initialize_config(db: Session):
     """
     If the config table is missing certain values, initialize those
     """
-    type(db)
     initialize_assignment_year(db)
+    initialize_allow_registration(db)
 
 
 def initialize_assignment_year(db: Session):
@@ -27,6 +27,23 @@ def initialize_assignment_year(db: Session):
         current_year = str(datetime.datetime.now().year)
         now = datetime.datetime.utcnow()
         new_config = models.Config(key='assignment_year', value=current_year, start_time=now, end_time=None)
+        db.add(new_config)
+        db.commit()
+
+
+def initialize_allow_registration(db: Session):
+    """
+    If the config is missing assignment_year, initialize it as current year
+    """
+
+    # Check if 'allow_registration' exists in the config
+    allow_registration_config = db.query(models.Config).filter(models.Config.key == 'allow_registration').first()
+
+    if not allow_registration_config:
+
+        # Add 'allow_registration' to the config
+        now = datetime.datetime.utcnow()
+        new_config = models.Config(key='allow_registration', value="True", start_time=now, end_time=None)
         db.add(new_config)
         db.commit()
 

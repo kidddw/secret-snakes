@@ -18,8 +18,11 @@ def init_db():
     If no database exists, create all tables in the database.
     """
     if not os.path.exists("./database.db"):
+    
+        # Initialize the database
         Base.metadata.create_all(bind=engine)
         print("Database created.")
+
     else:
         print("Database already exists.")
 

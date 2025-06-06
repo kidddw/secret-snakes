@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from pydantic import ValidationError
 import logging
 
-from app import models, schemas, database
+from app import models, schemas, database, config
 
 
 # Security configuration
@@ -83,8 +83,6 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 def get_current_user(db: Session = Depends(database.get_db), token: str = Depends(oauth2_scheme)):
     """Get the current user from the provided token."""
 
-    logger.info(f"Received token: {token}")
-
     # Design exception in case of invalid credentials
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -120,8 +118,6 @@ def get_current_user(db: Session = Depends(database.get_db), token: str = Depend
 
 def get_user_for_reset(db: Session = Depends(database.get_db), token: str = Depends(oauth2_scheme)):
     """Get the current user from the provided token."""
-
-    logger.info(f"Received token: {token}")
 
     # Design exception in case of invalid credentials
     credentials_exception = HTTPException(
@@ -172,3 +168,18 @@ def get_current_admin_user(current_user: models.User):
         )
 
     return current_user
+
+
+def get_allowed_registration():
+
+    # Check if registration is allowed
+    allow_registration = config.get_config(db).get("allow_registration", "True")
+    allow_registration = (allow_registration == "True")
+
+    if not allow_registration:
+        raise HTTPException(
+            status_code=403, 
+            detail="Registration is currently disabled by the administrator."
+        )
+    
+    return allow_registration

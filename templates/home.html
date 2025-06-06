@@ -24,12 +24,7 @@
                 </div>
                 <button type="submit" class="button">Login</button>
             </form>
-<!--            <p>-->
-<!--                <a href="/forgot-password">Forgot Password?</a> |-->
-<!--                <a href="/forgot-username">Forgot Username?</a>-->
-<!--            </p>-->
-            <p>Don't have an account? <a href="/register">Register here</a></p>
-
+            <p>Don't have an account? <a id="register-link" style="cursor: pointer;" class="text-button">Register here</a></p>
         </div>
 
     {% else %}
@@ -73,14 +68,31 @@
             alert('An error occurred. Please try again.');
         }
     });
+
+    // New JavaScript for the register link
+    document.getElementById('register-link').addEventListener('click', async function(e) {
+        e.preventDefault(); // Prevent default link behavior
+
+        try {
+            const response = await fetch('/check-registration-status');
+            const data = await response.json();
+
+            if (data.allow_registration) {
+                window.location.href = '/register'; // Proceed to registration page
+            } else {
+                alert('Registration is currently closed. Please check back later!');
+            }
+        } catch (error) {
+            console.error('Error checking registration status:', error);
+            alert('An error occurred while checking registration status. Please try again.');
+        }
+    });
+
     {% else %}
     document.getElementById('logout-button').addEventListener('click', function() {
         window.location.href = '/logout';
     });
     {% endif %}
 </script>
-
-
-
 
 {% endblock %}
