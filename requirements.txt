@@ -25,3 +25,4 @@ httpx
 python-multipart
 # python-email-validator
 email_validator
+boto3
