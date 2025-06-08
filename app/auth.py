@@ -170,7 +170,7 @@ def get_current_admin_user(current_user: models.User):
     return current_user
 
 
-def get_allowed_registration():
+def get_allowed_registration(db: Session = Depends(database.get_db)):
 
     # Check if registration is allowed
     allow_registration = config.get_config(db).get("allow_registration", "True")

@@ -83,7 +83,7 @@ async def home(
     # If authentication token in session and valid, display home page with user is authenticated set to true
     return templates.TemplateResponse(
         "home.html",
-        {"request": request, "user_authenticated": True, "allow_registration": allow_registration}
+        {"request": request, "user_authenticated": True}
     )
 
 
@@ -117,7 +117,7 @@ async def register_page(
     """Rendering the register page"""
 
     # Check if registration is allowed
-    auth.get_allowed_registration()
+    auth.get_allowed_registration(db)
 
     return templates.TemplateResponse("register.html", {"request": request})
 
@@ -139,7 +139,7 @@ async def register(
     """Register a new user."""
 
     # Check if registration is allowed
-    auth.get_allowed_registration()
+    auth.get_allowed_registration(db)
 
     # Query for this username in the users table
     db_user = db.query(models.User).filter(models.User.username == username).first()
