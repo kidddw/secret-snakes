@@ -3,7 +3,7 @@
     --primary-color-two: #228B22;
     --primary-color-three: #3d523d;
     --primary-color-four: #9f5454;
-    --primary-color-five: rgba(61, 82, 61, 0.1); /* This is a very light green */
+    --primary-color-five: rgba(61, 82, 61, 0.1);
     --primary-color-six: rgba(159, 84, 84, 0.17);
 
     --accent-color-one: #008080;
@@ -38,93 +38,84 @@
     --tip-background-hover-color: var(--primary-color-six);
 }
 
-/* Universal box-sizing for easier layout calculations */
+/* Universal box-sizing */
 * {
     box-sizing: border-box;
 }
 
-/* BODY */
+/* Base Body Styles */
 body {
     font-family: Arial, sans-serif;
     line-height: 1.6;
     margin: 0;
     padding: 0;
     background-color: var(--body-background-color);
-    /* Prevent horizontal scroll from overflowing content */
     overflow-x: hidden;
 }
 
-/* HEADER */
+/* Header */
 header {
     background: var(--header-background-color);
     color: var(--header-text-color);
-    padding: 20px 0; /* Vertical padding, horizontal padding handled by container */
+    padding: 20px 0;
     min-height: 70px;
     border-bottom: var(--header-border-bottom-color) 5px solid;
-    width: 100%; /* Ensure header takes full width */
+    width: 100%;
 }
 
 .header-container {
-    /* Use flexbox for main header layout: branding left, nav right */
     display: flex;
     justify-content: space-between;
-    align-items: center; /* Vertically center items */
-    max-width: 1200px; /* Max width for desktop content */
-    margin: 0 auto; /* Center the container */
-    padding: 0 20px; /* Horizontal padding for responsiveness on smaller screens */
-    /* Removed `overflow: hidden;` from here as it's handled by body and can cause issues */
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
 
-/* Branding (Logo + Title) */
 .branding {
     display: flex;
-    align-items: center; /* Vertically align image and text */
-    flex-shrink: 0; /* Prevent branding from shrinking too much */
+    align-items: center;
+    flex-shrink: 0;
 }
 
 .image-container {
-    margin-right: 15px; /* Space between image and text */
+    margin-right: 15px;
 }
 
 .image-placeholder {
     display: block;
-    width: 60px; /* Adjust size for better mobile fit initially */
+    width: 60px;
     height: 60px;
-    border-radius: 50%; /* Make it round if desired */
-    object-fit: cover; /* Ensures image covers area without distortion */
+    border-radius: 50%;
+    object-fit: cover;
 }
 
 .branding h1 {
-    margin: 0; /* Remove default margin */
-    font-size: 1.8rem; /* Adjust font size, use rem for better scaling */
-    white-space: nowrap; /* Prevent title from wrapping on desktop */
+    margin: 0;
+    font-size: 1.8rem;
+    white-space: nowrap;
 }
 
 .branding i {
-    display: block; /* Ensure tagline is on its own line */
-    font-size: 0.85rem; /* Smaller for tagline */
-    white-space: nowrap; /* Prevent tagline from wrapping on desktop */
+    display: block;
+    font-size: 0.85rem;
+    white-space: nowrap;
 }
 
-/* Navigation */
 nav ul {
     padding: 0;
-    margin: 0; /* Remove default ul margin */
+    margin: 0;
     list-style: none;
-    display: flex; /* Make navigation items horizontal */
-    gap: 20px; /* Space between nav items */
-}
-
-nav li {
-    padding: 0; /* Remove padding here, use gap on ul */
+    display: flex;
+    gap: 20px;
 }
 
 header a {
     color: var(--header-text-color);
     text-decoration: none;
     text-transform: uppercase;
-    font-size: 1rem; /* Use rem for better scaling */
-    transition: color 0.3s ease; /* Smooth hover transition */
+    font-size: 1rem;
+    transition: color 0.3s ease;
 }
 
 nav ul li a:hover {
@@ -137,87 +128,145 @@ header .current a {
     font-weight: bold;
 }
 
-/* BUTTONS */
+/* Buttons */
 .button {
-    /* height: 38px; - removed fixed height, let padding define it */
     background: var(--bubble-button-background-color);
     border: none;
-    padding: 10px 20px; /* Consistent padding for better touch target */
+    padding: 10px 20px;
     color: #ffffff;
     border-radius: 10px;
     cursor: pointer;
-    font-size: 1rem; /* Consistent font size */
+    font-size: 1rem;
     transition: background-color 0.3s ease;
 }
+
 .button:hover {
     background-color: var(--bubble-button-hover-color);
 }
 
 .small-button {
-    margin: 5px; /* Simplified margin */
+    margin: 5px;
     padding: 5px 10px;
     background-color: var(--text-button-color);
-    color: white; /* Changed text color to white for contrast on colored button */
+    color: white;
     border: none;
     cursor: pointer;
     border-radius: 3px;
-    font-size: 0.9rem; /* Smaller font for small buttons */
+    font-size: 0.9rem;
     transition: background-color 0.1s;
 }
+
 .small-button:hover {
     background-color: var(--text-button-hover-color);
 }
 
-/* COMMON STYLES (Apply to main content sections) */
-main {
-    max-width: 1200px; /* Keep content within reasonable bounds on large screens */
-    margin: 20px auto; /* Center main content and add vertical space */
-    padding: 0 20px; /* Horizontal padding for responsiveness */
-    width: 100%; /* Ensure it takes up the full width allowed by max-width */
-}
-
-.common-page-container {
-    display: flex; /* Use flex for common page layouts */
-    flex-direction: column; /* Default to column for mobile first */
-    gap: 20px;
-    padding: 0; /* Padding handled by main for overall page, individual panels will have padding */
-}
-
-.common-panel {
-    background-color: var(--container-background-color);
-    border: 2px solid var(--container-border-color);
-    border-radius: 15px; /* Slightly smaller radius for better mobile look */
-    padding: 20px; /* Adjusted padding for better mobile fit */
-    margin: 20px 0px 0px 0px;
-
-}
-
-.line {
-    border-bottom: 1px solid var(--container-segmenting-line-color);
-}
-.line-padding {
-    margin-bottom: 10px; /* Increased padding slightly for readability */
-}
-
 .text-button {
-    margin: 5px; /* Simplified margin */
+    margin: 5px;
     padding: 5px 10px;
     background: none;
     border: none;
     color: var(--text-button-color);
     cursor: pointer;
-    text-decoration: underline; /* Make it clear it's a link */
+    text-decoration: underline;
     font-size: 0.95rem;
     transition: color 0.1s;
 }
+
 .text-button:hover {
     color: var(--text-button-hover-color);
 }
 
-/* HOME PAGE SPECIFIC STYLES (from home.html) */
+.submit-button {
+    background: none;
+    border: none;
+    color: var(--text-button-color);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: color 0.1s;
+}
+
+.submit-button:hover {
+    color: var(--text-button-hover-color);
+}
+
+/* Common Layouts & Panels */
+main {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 20px;
+    width: 100%;
+}
+
+.common-page-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0;
+}
+
+.common-panel {
+    background-color: var(--container-background-color);
+    border: 2px solid var(--container-border-color);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0px 0px 0px;
+}
+
+.line {
+    border-bottom: 1px solid var(--container-segmenting-line-color);
+}
+
+.line-padding {
+    margin-bottom: 10px;
+}
+
+/* Forms */
+.form-field-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.form-field-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    display: block;
+}
+
+/* General input styles for various form fields */
+.form-field-group input[type="text"],
+.form-field-group input[type="password"],
+.form-field-group input[type="email"],
+.form-field-group input[type="number"],
+.form-field-group textarea,
+.form-field-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--neutral-color-four);
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}  
+
+
+/* Specific email input for profile page */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--neutral-color-four);
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+
+/* Home Page */
 .home-container {
-    max-width: 600px; /* Limit width on larger screens */
-    margin: 50px auto; /* Center on page, add top/bottom margin */
+    max-width: 600px;
+    margin: 50px auto;
     padding: 20px;
     background-color: var(--container-background-color);
     border-radius: 8px;
@@ -252,17 +301,6 @@ main {
     font-weight: bold;
 }
 
-#login-form input[type="text"],
-#login-form input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid var(--neutral-color-four);
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-size: 1rem;
-}
-
-/* Ensure buttons within login/logout section are responsive */
 .home-container .button {
     width: 100%;
     max-width: 300px;
@@ -270,105 +308,90 @@ main {
     display: block;
 }
 
-/* Logged-in state messages */
 .home-container p {
     margin-bottom: 20px;
     font-size: 1.1rem;
 }
 
-
-/* REGISTRATION PAGE */
-/* Add this new section for the register container, similar to .home-container */
+/* Registration Page */
 .register-container {
-    max-width: 600px; /* Limit width on larger screens */
-    margin: 50px auto; /* Center on page, add top/bottom margin */
+    max-width: 600px;
+    margin: 50px auto;
     padding: 20px;
     background-color: var(--container-background-color);
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    text-align: center; /* Center the heading and paragraph */
+    text-align: center;
 }
 
-.register-container h2 {
+.register-container h2,
+.register-container h3 {
     color: var(--accent-color-two);
     margin-bottom: 20px;
 }
 
 .register-container h3 {
-    color: var(--accent-color-two);
     margin-bottom: 10px;
 }
 
 #register-form {
     display: flex;
-    flex-direction: column; /* Stack the div elements vertically */
-    gap: 15px; /* Space between each label/input group */
-    max-width: 400px; /* Limit the form width to make it look cleaner */
-    margin: 0 auto; /* Center the form within its container */
-    padding: 0 10px; /* Add some horizontal padding for smaller screens */
+    flex-direction: column;
+    gap: 15px;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 0 10px;
 }
 
-#register-form > div { /* Target the div wrapping each label and input */
-    display: flex; /* Make each div a flex container */
-    flex-direction: column; /* Stack label and input vertically by default (mobile-first) */
-    text-align: left; /* Align label and input text to the left */
+#register-form .register-fields-container > div {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
 }
 
 #register-form label {
-    margin-bottom: 5px; /* Space between label and input */
+    margin-bottom: 5px;
     font-weight: bold;
-    display: block; /* Ensure label takes its own line */
+    display: block;
 }
 
-#register-form input[type="text"],
-#register-form input[type="password"],
-#register-form input[type="email"] {
-    width: 100%; /* Make inputs fill their container */
-    padding: 10px;
-    border: 1px solid var(--neutral-color-four);
-    border-radius: 4px;
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
-    font-size: 1rem;
-}
-
-/* Ensure the register button is styled consistently */
 .register-container .button {
     width: 100%;
-    max-width: 400px; /* Match form max-width */
-    margin: 20px auto 0 auto; /* Center and add top margin */
-    display: block; /* Ensure it takes full width */
+    max-width: 400px;
+    margin: 20px auto 0 auto;
+    display: block;
 }
 
 .register-fields-container {
-    display: flex; /* Use flexbox for layout */
-    flex-direction: column; /* Stack fields vertically by default */
-    gap: 15px; /* Space between each field */
-    margin-bottom: 40px; /* Space below the fields */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 40px;
 }
 
-/* PROFILE PAGE */
+/* Profile Page */
 .profile-page-container {
     display: flex;
-    flex-direction: column; /* Default to column for mobile-first */
+    flex-direction: column;
     gap: 20px;
 }
 
 .profile-details-panel {
-    flex: 1; /* Allow to grow */
-    min-height: auto; /* Remove fixed min-height if present */
+    flex: 1;
+    min-height: auto;
 }
 
 .right-panels {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    flex: 1; /* Allow to grow */
+    flex: 1;
 }
 
 .profile-assignment-panel,
 .profile-admin-panel {
-    flex: 1; /* Allow to grow */
-    min-height: auto; /* Remove fixed min-height if present */
+    flex: 1;
+    min-height: auto;
 }
 
 .content-container {
@@ -379,9 +402,9 @@ main {
 
 .property-container {
     display: flex;
-    flex-direction: column; /* Stack properties vertically on smaller screens */
-    margin-bottom: 10px; /* Space between property groups */
-    gap: 5px; /* Space between current and update containers */
+    flex-direction: column;
+    margin-bottom: 10px;
+    gap: 5px;
 }
 
 .current-property-container,
@@ -394,71 +417,59 @@ main {
 .property-title {
     margin-top: 15px;
     margin-bottom: 5px;
-    /* display: flex; */
     align-items: left;
 }
 
 .property-value {
     text-align: left;
-    white-space: normal; /* Allow text to wrap */
-    word-break: break-word; /* Break long words */
+    white-space: normal;
+    word-break: break-word;
 }
 
-.submit-button {
-    background: none;
-    border: none;
-    color: var(--text-button-color);
-    cursor: pointer;
-    font-size: 1rem;
-    transition: color 0.1s;
-}
-.submit-button:hover {
-    color: var(--text-button-hover-color);
+.profile-update-modal {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: var(--container-background-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-input[type=email] {
-    width: 100%; /* Make email input full width */
-    padding: 8px;
-    border: 1px solid var(--neutral-color-four);
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-size: 1rem;
+.profile-update-modal h3 {
+    color: var(--accent-color-two);
+    margin-bottom: 10px;
 }
 
-#update-shipping-form input[type="text"] { /* Specific override for update form inputs if needed */
-    width: 100%;
-    padding: 10px;
-    border: 1px solid var(--neutral-color-four);
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-size: 1rem;
+#profile-update-modal > div {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
 }
 
-/* Target the div that *contains* all the label/input divs within the form */
+/* Update Shipping Form Specifics */
+#update-shipping-form-modal label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    display: block;
+    text-align: left;
+}
+
 #update-shipping-form .property-value {
     display: flex;
-    flex-direction: column; /* Stack the field divs vertically */
-    gap: 15px; /* Space between each label/input group */
-    /* Remove padding if you want it handled by the individual field divs or outer containers */
+    flex-direction: column;
+    gap: 15px;
     padding: 0;
 }
 
-/* Target the individual div wrapping each label and input within the update form */
 #update-shipping-form .property-value > div {
     display: flex;
-    flex-direction: column; /* Default: Stack label and input vertically on mobile */
-    text-align: left; /* Align label and input text to the left */
-}
-
-#update-shipping-form label {
-    margin-bottom: 5px; /* Space between label and input on mobile */
-    font-weight: bold;
-    display: block; /* Ensure label takes its own line */
+    flex-direction: column;
+    text-align: left;
 }
 
 .current-assignment-container {
     display: flex;
-    flex-direction: column; /* Stack assignment details */
+    flex-direction: column;
     flex: 1;
 }
 
@@ -470,9 +481,10 @@ input[type=email] {
 .current-assignment {
     color: var(--current-assignment-highlight-color);
     background: none;
-    display: block; /* Ensure it takes full line */
-    text-align: center; /* Center current assignment text */
+    display: block;
+    text-align: center;
 }
+
 .current-assignment-link:hover {
     color: var(--current-assignment-hover-color);
     cursor: pointer;
@@ -489,43 +501,41 @@ input[type=email] {
 }
 
 .assignment-n-tips {
-    float: none; /* Remove float */
-    text-align: center; /* Center the text */
+    float: none;
+    text-align: center;
     margin-top: 10px;
 }
 
-
-/* ASSIGNMENT PAGE */
+/* Assignment Page */
 .assignment-page-container {
     display: flex;
-    flex-direction: column; /* Default to column for mobile-first */
+    flex-direction: column;
     gap: 20px;
-    /* On small screens, flex: 1 on children ensures they share available space */
 }
 
 .assignment-left-panel {
-    flex: 1; /* Allow to grow on mobile */
-    min-height: auto; /* Remove fixed min-height */
+    flex: 1;
+    min-height: auto;
 }
 
 .assignment-tips-panel {
-    flex: 1; /* Allow to grow on mobile */
-    min-height: auto; /* Remove fixed min-height */
-    max-height: 500px; /* Keep max-height if content is scrollable */
+    flex: 1;
+    min-height: auto;
+    max-height: 500px;
 }
 
 .assignment-tips-container {
-    max-height: 300px; /* Adjust max-height for better mobile fit */
+    max-height: 300px;
     border: 1px solid var(--assignment-tips-container-border-color);
     border-radius: 5px;
     overflow-y: scroll;
-    padding: 10px; /* Add padding inside scrollable container */
+    padding: 10px;
 }
 
 .assignment-tips-list {
     list-style-type: none;
-    padding: 0; /* Remove default list padding */
-    margin: 0; /* Remove default list margin */
+    padding: 0;
+    margin: 0;
 }
 
 .assignment-tip-item {
@@ -536,28 +546,27 @@ input[type=email] {
     background: var(--assignment-tip-background-color);
 }
 
-
-/* TIPS PAGE */
+/* Tips Page */
 .tip-page-container {
     display: flex;
-    flex-direction: column; /* Default to column for mobile-first */
+    flex-direction: column;
     gap: 20px;
 }
 
 .tip-form-container {
     flex: 1;
-    min-height: auto; /* Remove fixed min-height */
+    min-height: auto;
 }
 
 .past-tips-container {
     flex: 1;
-    min-height: auto; /* Remove fixed min-height */
-    max-height: 500px; /* Keep max-height if content is scrollable */
-    padding: 10px; /* Add padding inside scrollable container */
+    min-height: auto;
+    max-height: 500px;
+    padding: 10px;
 }
 
 .tip-subject-select {
-    width: 100%; /* Make select full width */
+    width: 100%;
     padding: 10px;
     border: 1px solid var(--tip-border-color);
     border-radius: 5px;
@@ -566,143 +575,144 @@ input[type=email] {
     cursor: pointer;
     transition: background-color 0.1s;
 }
+
 .tip-subject-select:hover {
     background: var(--tip-background-hover-color);
 }
 
 .tip-textarea {
-    width: 100%; /* Make textarea full width */
-    min-height: 120px; /* Give it a reasonable minimum height */
+    width: 100%;
+    min-height: 120px;
     padding: 12px 20px;
     border: 1px solid var(--tip-border-color);
     border-radius: 15px;
     background: var(--tip-background-color);
     font-size: 1rem;
-    resize: vertical; /* Allow vertical resizing */
+    resize: vertical;
     transition: background-color 0.1s;
 }
+
 .tip-textarea:hover {
     background-color: var(--tip-background-hover-color);
 }
 
 .tips-tip-item-container {
     display: flex;
-    flex-direction: column; /* Stack tip item and actions on mobile */
+    flex-direction: column;
     gap: 5px;
     margin-bottom: 15px;
     padding: 10px;
-    border: 1px solid var(--assignment-tip-border-color); /* Similar to other tip items */
+    border: 1px solid var(--assignment-tip-border-color);
     border-radius: 15px;
     background: var(--assignment-tip-background-color);
 }
 
 .tips-tip-item {
-    flex: 1; /* Allow to grow */
+    flex: 1;
 }
 
 .tip-actions {
     display: flex;
-    flex-direction: row; /* Keep buttons inline for actions */
-    justify-content: flex-end; /* Align actions to the right */
-    gap: 10px; /* Space between action buttons */
-    flex-shrink: 0; /* Don't let actions shrink too much */
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
 }
 
-/* MODAL */
+/* Modal */
 .modal {
     display: none;
     position: fixed;
-    z-index: 1000; /* Ensure modal is on top */
+    z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0, 0, 0, 0.6); /* Slightly darker overlay */
-    padding-top: 60px; /* Space from top */
+    background-color: rgba(0, 0, 0, 0.6);
+    padding-top: 60px;
 }
 
 .modal-content {
-    background-color: #fefefe;
-    margin: 5% auto; /* Adjust margin for better vertical centering on mobile */
-    padding: 25px; /* Increase padding for better look */
-    border: 1px solid #888;
-    width: 90%; /* Use percentage for width */
-    max-width: 400px; /* Set a reasonable max-width */
-    border-radius: 10px; /* Rounded corners */
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add subtle shadow */
+    background-color: var(--container-background-color);
+    margin: 5% auto;
+    padding: 25px;
+    border: 1px solid var(--container-border-color);
+    width: 90%;
+    max-width: 400px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* --- MEDIA QUERIES FOR RESPONSIVENESS --- */
+/* Media Queries for Responsiveness */
 
 /* Small devices (phones, 600px and down) */
 @media (max-width: 600px) {
     body {
-        font-size: 0.9rem; /* Slightly smaller base font */
+        font-size: 0.9rem;
     }
 
     /* Header */
     .header-container {
-        flex-direction: column; /* Stack branding and nav vertically */
-        align-items: center; /* Center items when stacked */
-        padding: 15px; /* Adjust padding */
+        flex-direction: column;
+        align-items: center;
+        padding: 15px;
     }
 
     .branding {
-        flex-direction: column; /* Stack image and title vertically */
+        flex-direction: column;
         text-align: center;
         margin-bottom: 15px;
     }
 
     .image-container {
-        margin: 0 auto 10px auto; /* Center image and add bottom margin */
+        margin: 0 auto 10px auto;
     }
 
     .image-placeholder {
-        width: 50px; /* Smaller image */
+        width: 50px;
         height: 50px;
     }
 
     .branding h1 {
-        font-size: 1.5rem; /* Smaller title font */
-        white-space: normal; /* Allow wrapping */
+        font-size: 1.5rem;
+        white-space: normal;
         text-align: center;
     }
 
     .branding i {
-        font-size: 0.75rem; /* Smaller tagline font */
-        white-space: normal; /* Allow wrapping */
+        font-size: 0.75rem;
+        white-space: normal;
         text-align: center;
     }
 
     nav {
-        width: 100%; /* Make nav take full width */
+        width: 100%;
     }
 
     nav ul {
-        flex-direction: column; /* Stack nav items vertically */
-        gap: 8px; /* Reduced gap */
+        flex-direction: column;
+        gap: 8px;
     }
 
     header a {
-        font-size: 0.9rem; /* Smaller nav link font */
+        font-size: 0.9rem;
     }
 
     /* Common */
     main {
-        padding: 0 15px; /* Smaller horizontal padding */
+        padding: 0 15px;
         margin-top: 15px;
     }
 
     .common-page-container {
-        flex-direction: column; /* Ensure stacked layout for all common pages */
-        gap: 15px; /* Reduced gap */
+        flex-direction: column;
+        gap: 15px;
     }
 
     .common-panel {
-        padding: 15px; /* Reduced padding */
-        border-radius: 10px; /* Slightly smaller border-radius */
+        padding: 15px;
+        border-radius: 10px;
     }
 
     /* Buttons */
@@ -712,74 +722,69 @@ input[type=email] {
         font-size: 0.95rem;
     }
 
-    /* Inputs */
-    input[type="text"],
-    input[type="password"],
-    input[type="email"],
-    .tip-subject-select,
-    .tip-textarea {
-        font-size: 0.95rem;
-        padding: 10px;
-    }
-
     /* Registration Page */
     #register-form > div {
-        flex-direction: row; /* Layout label and input side-by-side */
-        align-items: center; /* Vertically align them */
-        gap: 15px; /* Space between label and input */
-        justify-content: flex-start; /* Align contents to the start */
+        flex-direction: row;
+        align-items: center;
+        gap: 15px;
+        justify-content: flex-start;
     }
 
     #register-form label {
-        flex-basis: 150px; /* Give labels a fixed width to align inputs */
-        /* You might need to adjust this value based on your longest label text */
-        text-align: right; /* Right-align labels for a classic form look */
-        margin-bottom: 0; /* Remove bottom margin when side-by-side */
+        flex-basis: 150px;
+        text-align: right;
+        margin-bottom: 0;
     }
 
     #register-form input {
-        flex-grow: 1; /* Allow inputs to take up remaining space */
-        max-width: 250px; /* Cap input width for better readability on very wide screens */
+        flex-grow: 1;
+        max-width: 250px;
     }
 
     /* Profile Page */
     .profile-page-container {
-        flex-direction: column; /* Always stack panels */
+        flex-direction: column;
     }
 
     .property-container {
-        flex-direction: column; /* Ensure properties stack */
+        flex-direction: column;
     }
 
     /* Assignment Page */
     .assignment-page-container {
-        flex-direction: column; /* Always stack panels */
+        flex-direction: column;
     }
+
     .assignment-tips-container {
-        max-height: 250px; /* Further reduce max-height for very small screens */
+        max-height: 250px;
     }
 
     /* Tips Page */
     .tip-page-container {
-        flex-direction: column; /* Always stack panels */
+        flex-direction: column;
     }
+
     .past-tips-container {
-        max-height: 250px; /* Further reduce max-height for very small screens */
+        min-height: 200px;
+        max-height: 400px;
+        padding-bottom: 50px;
     }
+
     .tips-tip-item-container {
-        flex-direction: column; /* Stack tip item and actions */
-        align-items: flex-start; /* Align actions to start */
+        flex-direction: column;
+        align-items: flex-start;
     }
+
     .tip-actions {
-        width: 100%; /* Make action buttons take full width if stacked */
-        justify-content: flex-start; /* Align action buttons to the left */
+        width: 100%;
+        justify-content: flex-start;
         margin-top: 10px;
     }
 
     /* Modal */
     .modal-content {
         margin: 10% auto;
-        width: 95%; /* Wider modal on small screens */
+        width: 95%;
         padding: 20px;
     }
 }
@@ -788,16 +793,19 @@ input[type=email] {
 @media (min-width: 601px) and (max-width: 992px) {
     /* Header */
     .header-container {
-        padding: 0 25px; /* Slightly more padding */
+        padding: 0 25px;
     }
+
     .branding h1 {
         font-size: 1.7rem;
     }
+
     .branding i {
         font-size: 0.8rem;
     }
+
     nav ul {
-        gap: 15px; /* Slightly smaller gap */
+        gap: 15px;
     }
 
     /* Common */
@@ -806,49 +814,51 @@ input[type=email] {
     }
 
     .common-panel {
-        padding: 30px; /* More padding than mobile */
+        padding: 30px;
     }
 
     /* Profile Page */
     .profile-page-container {
-        flex-direction: column; /* Stack on tablets too, but panels themselves can be wider */
+        flex-direction: column;
     }
+
     .property-container {
-        flex-direction: row; /* Allow property details to be side-by-side on tablets */
+        flex-direction: row;
         align-items: center;
         gap: 20px;
     }
+
     .current-property-container,
     .update-property-container {
-        flex-direction: row; /* Keep inputs inline */
+        flex-direction: row;
         align-items: center;
         gap: 10px;
     }
 
     /* Assignment and Tips Page */
-    /* On tablets, we want them side-by-side if possible */
     .assignment-page-container,
     .tip-page-container {
-        flex-direction: row; /* Allow side-by-side panels on tablets */
-        flex-wrap: wrap; /* Allow panels to wrap if needed */
-        justify-content: space-between; /* Distribute space */
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
     }
+
     .assignment-left-panel,
     .assignment-tips-panel,
     .tip-form-container,
     .past-tips-container {
-        flex-basis: 48%; /* Roughly half width, adjust as needed */
-        min-height: 400px; /* Give more height on tablets */
+        flex-basis: 48%;
+        min-height: 400px;
     }
 
     .assignment-tips-container {
-        max-height: 350px; /* Adjust this value if needed, it limits the total height */
+        max-height: 350px;
         margin-bottom: 100px;
-        overflow-y: scroll; /* Ensure scrolling is enabled */
+        overflow-y: scroll;
     }
 
     .tips-tip-item-container {
-        flex-direction: column; /* Allow tip and actions side-by-side */
+        flex-direction: column;
         align-items: left;
     }
 }
@@ -857,143 +867,88 @@ input[type=email] {
 @media (min-width: 993px) {
     .header-container,
     main {
-        padding: 0 30px; /* Standard desktop padding */
+        padding: 0 30px;
         width: 100%;
     }
 
     /* Common */
-    /* Remove flex-direction from .common-page-container here, specific page classes will handle it */
     .common-panel {
         margin: 20px 0px 0px 0px;
-        padding: 50px; /* Restore desktop padding for panels */
-        border-radius: 50px; /* Restore desktop border-radius for panels */
+        padding: 50px;
+        border-radius: 50px;
     }
 
     .profile-page-container,
     .assignment-page-container,
     .tip-page-container {
-        display: flex; /* Ensure it's a flex container */
-        flex-direction: row; /* Layout children side-by-side */
-        gap: 30px; /* Space between the main panels */
-        width: 100%; /* Make them fill the main container's width */
-        flex-wrap: nowrap; /* Prevent wrapping unless explicitly desired (default is nowrap) */
-        justify-content: flex-start; /* Align items to the start of the flex container */
-        /* You could also use justify-content: space-between; if you want the first and last item
-           to push to the edges and space out the rest. */
+        display: flex;
+        flex-direction: row;
+        gap: 30px;
+        width: 100%;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
     }
 
-    /* === Profile Page Specific Flex Item Properties === */
+    /* Profile Page Specific Flex Item Properties */
     .profile-details-panel {
-        /*
-        * Original: flex: 5;
-        * This is shorthand for flex: 5 1 auto;
-        * Meaning: Grow 5, Shrink 1, Basis 'auto' (content-sized)
-        * Problem: If content is small, 'auto' basis might not stretch enough.
-        */
-        flex: 5 1 0%; /* Explicitly set basis to 0%. This means:
-                        - Grow 5 times as much as a 'flex: 1' sibling
-                        - Shrink if needed (default)
-                        - Start at 0 width, so growth is purely proportional
-                       This is often preferred for truly proportional layouts.
-                    */
-        min-width: 0; /* Prevents overflow if content is wider than calculated flex-basis */
+        flex: 5 1 0%;
+        min-width: 0;
     }
 
     .right-panels {
-        /*
-        * Original: flex: 4; (shorthand for 4 1 auto)
-        */
-        flex: 4 1 0%; /* Same logic as above, start at 0% and grow 4 times proportionally */
-        display: flex; /* Make this a flex container itself */
-        flex-direction: column; /* Stack its children (assignment and admin) vertically */
-        gap: 20px; /* Space between profile-assignment-panel and profile-admin-panel */
-        min-width: 0; /* Prevents overflow */
+        flex: 4 1 0%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        min-width: 0;
     }
 
-    /* === Assignment Page Specific Flex Item Properties === */
+    /* Assignment Page Specific Flex Item Properties */
     .assignment-left-panel {
-        /* Original: flex: 3; (shorthand for 3 1 auto) */
-        flex: 3 1 0%; /* Grow 3 times, start at 0 width */
+        flex: 3 1 0%;
         min-height: 300px;
         min-width: 0;
     }
+
     .assignment-tips-panel {
-        /* Original: flex: 2; (shorthand for 2 1 auto) */
-        flex: 2 1 0%; /* Grow 2 times, start at 0 width */
+        flex: 2 1 0%;
         min-height: 300px;
         max-height: 500px;
         min-width: 0;
     }
 
-    /* === Tips Page Specific Flex Item Properties === */
+    /* Tips Page Specific Flex Item Properties */
     .tip-form-container {
-        /* Original: flex: 3; (shorthand for 3 1 auto) */
-        flex: 3 1 0%; /* Grow 3 times, start at 0 width */
+        flex: 3 1 0%;
         min-height: 300px;
         min-width: 0;
     }
+
     .past-tips-container {
-        /* Original: flex: 2; (shorthand for 2 1 auto) */
-        flex: 2 1 0%; /* Grow 2 times, start at 0 width */
+        flex: 2 1 0%;
         min-height: 300px;
         max-height: 500px;
         min-width: 0;
     }
 
-    /* No changes needed here based on previous suggestion, but included for context */
     .tips-tip-item-container {
         flex-direction: column;
     }
 
     .property-container {
-        flex-direction: row; /* Side-by-side for desktop */
+        flex-direction: row;
         align-items: center;
     }
+
     .current-property-container,
     .update-property-container {
-        flex-direction: row; /* Inputs inline */
+        flex-direction: row;
     }
 
-    /* Apply similar flex alignment to the update shipping form fields */
-    #update-shipping-form .property-value > div {
-        flex-direction: row; /* Layout label and input side-by-side */
-        align-items: left; /* Vertically align them */
-        gap: 15px; /* Space between label and input */
-        justify-content: flex-start; /* Align contents to the start */
-    }
-
-    #update-shipping-form label {
-        flex-basis: 150px; /* Give labels a fixed width for alignment, same as register form */
-        /* Adjust this value if labels on the profile page are longer/shorter */
-        text-align: right; /* Right-align labels for a classic form look */
-        margin-bottom: 0; /* Remove bottom margin when side-by-side */
-    }
-
-    #update-shipping-form input {
-        flex-grow: 1; /* Allow inputs to take up remaining space */
-        max-width: 250px; /* Cap input width for better readability on very wide screens */
-    }
-
-    /* Important: Ensure that the .property-container on desktop is also configured
-       to allow its children (current-property-container and update-property-container)
-       to be laid out correctly. You already have this for profile.html:
-       .property-container { flex-direction: row; align-items: center; gap: 20px; }
-       This is good.
-    */
-    /* On desktop, the update-property-container also needs to be flex-direction: column
-       so its contents stack properly, especially the form. */
     .update-property-container {
         display: flex;
         flex-direction: column;
-        gap: 10px; /* Small gap between title/button and the form itself */
-    }
-
-    /* If the update-shipping-form itself needs to be horizontally centered
-       within update-property-container, and if it has a max-width: */
-    #update-shipping-form {
-        max-width: 450px; /* A reasonable max-width for the form itself */
-        margin: 0 auto; /* Center the form if it has a max-width */
-        padding: 0 10px; /* Add some horizontal padding for smaller screens within the form */
+        gap: 10px;
     }
 
 }
