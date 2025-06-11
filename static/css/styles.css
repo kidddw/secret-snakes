@@ -206,7 +206,7 @@ main {
 
 .common-panel {
     background-color: var(--container-background-color);
-    border: 2px solid var(--container-border-color);
+    /* border: 2px solid var(--container-border-color); */
     border-radius: 15px;
     padding: 20px;
     margin: 20px 0px 0px 0px;
@@ -467,22 +467,42 @@ input[type="number"] {
     text-align: left;
 }
 
-.current-assignment-container {
+/* Update Email Form Specifics */
+#update-email-form-modal label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    display: block;
+    text-align: left;
+}
+
+#update-email-form-modal .property-value {
     display: flex;
     flex-direction: column;
+    gap: 15px;
+    padding: 0;
+}
+
+#update-email-form-modal .property-value > div {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.current-assignment-container {
+    display: flex;
+    flex-direction: row;
     flex: 1;
 }
 
 .assignment {
     margin-top: 15px;
     margin-bottom: 5px;
+    text-align: left;
 }
 
 .current-assignment {
     color: var(--current-assignment-highlight-color);
-    background: none;
-    display: block;
-    text-align: center;
+    /* display: block; */
 }
 
 .current-assignment-link:hover {
@@ -492,8 +512,7 @@ input[type="number"] {
 
 .past-assignment {
     color: var(--past-assignment-highlight-color);
-    display: block;
-    text-align: center;
+    /* display: block; */
 }
 
 .current-assignment-link {
@@ -501,9 +520,7 @@ input[type="number"] {
 }
 
 .assignment-n-tips {
-    float: none;
-    text-align: center;
-    margin-top: 10px;
+    margin-left: 10px;
 }
 
 /* Assignment Page */
