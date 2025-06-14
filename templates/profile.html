@@ -266,13 +266,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Make sure these IDs match the new form IDs within the modals
     document.getElementById('update-email-form-modal').addEventListener('submit', function(e) {
         e.preventDefault();
-        updateProfile(this, '/update-profile');
+        updateProfile(this, '/update-email');
         updateEmailModal.style.display = 'none'; // Close modal on submission attempt
     });
 
     document.getElementById('update-shipping-form-modal').addEventListener('submit', function(e) {
         e.preventDefault();
-        updateProfile(this, '/update-profile');
+        updateProfile(this, '/update-shipping');
         updateShippingModal.style.display = 'none'; // Close modal on submission attempt
     });
 
@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const jsonData = Object.fromEntries(formData.entries());
 
         fetch(endpoint, {
-            method: 'PATCH', // Assuming your Flask route handles PATCH for profile updates
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`

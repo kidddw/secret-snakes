@@ -1,7 +1,11 @@
+import os
 import uvicorn
 from app.main import app
 
 if __name__ == "__main__":
+
+    env = os.environ.get("ENVIRONMENT", "dev")
+    print('', f"Running in {env} mode...")
 
     # The host="0.0.0.0" parameter allows the server to be accessible from any IP address,
     #   which is suitable for production deployment

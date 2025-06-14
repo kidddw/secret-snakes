@@ -216,7 +216,6 @@ async def login(
 
     # Create an authentication token
     access_token = auth.create_access_token(data={"sub": user.username})
-    logger.info(f"Token generated: {access_token}")
 
     # Store the token in the session
     request.session["access_token"] = access_token
@@ -226,7 +225,6 @@ async def login(
 
 @app.get("/logout")
 async def logout(request: Request):
-    logger.info(f"Logout attempt")
 
     # Remove the token from the session
     request.session.pop("access_token", None)
@@ -415,7 +413,7 @@ async def profile(
         raise
 
 
-@app.patch("/update-profile")
+@app.patch("/update-email")
 async def update_profile(
         request: Request,
         user_update: schemas.UserUpdate,
@@ -435,7 +433,31 @@ async def update_profile(
     # Commit updates to database
     db.commit()
     db.refresh(current_user)
-    return {"message": "Profile updated successfully"}
+    return {"message": "Email updated successfully"}
+
+
+@app.patch("/update-shipping")
+async def update_profile(
+        request: Request,
+        user_update: schemas.UserUpdate,
+        db: Session = Depends(database.get_db)
+):
+
+    # Get the token from the session
+    access_token = request.session.get("access_token")
+
+    # Get current user
+    current_user = auth.get_current_user(db, access_token)
+
+    # For all fields provided, overwrite current user object's attributes
+    for field, value in user_update.dict(exclude_unset=True).items():
+        setattr(current_user, field, value)
+
+    # Commit updates to database
+    db.commit()
+    db.refresh(current_user)
+
+    return {"message": "Shipping address updated successfully"}
 
 
 @app.get("/update_profile_page")
@@ -507,8 +529,6 @@ def set_assignment_year(
     # Check if current user is admin
     auth.get_current_admin_user(current_user)
 
-    logger.info(f"assignment_year: {assignment_year_request.assignment_year}")
-
     # Set assignment year
     config.set_config(db, 'assignment_year', str(assignment_year_request.assignment_year))
 
@@ -534,8 +554,6 @@ def create_assignments(
 
     # Parse assignment request, create assignments, and record assignments to the database
     assignments_request_dict = assignments_request.dict()
-
-    logger.info(f"/admin/assign assignments_request_dict: {assignments_request_dict}")
 
     # Check if year already exists
     year = assignments_request_dict["year"]
@@ -653,8 +671,6 @@ async def create_tip_form(
 
     # Get the user's past tips
     past_tips = tips.get_tips_for_contributor_user(db, current_user.id, assignment_year)
-
-    logging.info(f"past_tips: {past_tips}")
 
     return templates.TemplateResponse("create_tip.html", {
         "request": request,

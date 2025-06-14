@@ -1,15 +1,22 @@
 from typing import List
+import logging
 import datetime
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, func, and_
 
+from app.emails import send_tip_email
 from app import schemas
 from app.models import (
     User,
     Assignment,
     Tip
 )
+
+
+# Adding logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def count_tips_for_current_assignment(
@@ -31,6 +38,33 @@ def count_tips_for_current_assignment(
         Assignment.year == assignment_year
     ).scalar()
     return tip_count
+
+
+def query_for_subject_assignee_email(
+        assigned_user_id,
+        year,
+        db: Session
+):
+    """
+    Use provided assigned user ID and year to query for the email address of the assignee.
+    """
+
+    # Query for the assignemnt corresponding to the assigned user ID and year
+    assignment = db.query(Assignment).filter(
+        Assignment.assigned_user_id == assigned_user_id,
+        Assignment.year == year
+    ).first()
+
+    try:
+
+        assignee_user = assignment.assignee_user
+        return assignee_user.email
+
+    except AttributeError:
+
+        # If the assignment does not have an assignee or the assignee is not foun
+        logger.warning(f"Error: Assignee user not found for asigned user ID {assigned_user_id} and year {year}.")
+        return None
 
 
 def create_tip(
@@ -59,6 +93,20 @@ def create_tip(
     db.add(db_tip)
     db.commit()
     db.refresh(db_tip)
+
+    # Query for the subject user's assignee to get their email
+    to_email = query_for_subject_assignee_email(db_tip.subject_user_id, db_tip.year, db)
+            
+    if to_email:
+
+        # Get the current date in MM/DD/YYYY format
+        current_date_str = datetime.datetime.now().strftime("%m/%d/%Y")
+
+        # Create the subject line for the email
+        subject = f"You received a new Snakesmas tip! ({current_date_str})"
+
+        # Send email to subject user's assignee
+        send_tip_email(to_email, db_tip.content, subject=subject)
 
     return db_tip
 

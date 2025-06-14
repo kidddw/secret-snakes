@@ -1,3 +1,4 @@
+import os
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt, ExpiredSignatureError
@@ -11,9 +12,9 @@ from app import models, schemas, database, config
 
 
 # Security configuration
-SECRET_KEY = "your-secret-key"
+SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key')
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 3000
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES', 15))
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
