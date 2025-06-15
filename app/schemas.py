@@ -73,6 +73,18 @@ class User(UserBase):
         orm_mode = True
 
 
+class UserEmail(BaseModel):
+    """
+    User email for username recovery.
+    """
+    email: EmailStr
+
+
+class PasswordReset(BaseModel):
+    password: str
+    password_confirm: str
+    
+
 class AssignmentBase(BaseModel):
     """
     Serves as the foundation for assignment-related data models.

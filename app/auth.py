@@ -1,4 +1,5 @@
 import os
+import uuid
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt, ExpiredSignatureError
@@ -35,17 +36,87 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
+def create_reset_password_token():
+    return str(uuid.uuid4())
+
+
+def set_user_reset_state(db: Session, user: models.User, reset_token: str = None):
+    """
+    Set the reset token and expiry for a user.
+    This function generates a unique reset token and sets its expiry to 1 hour from now.
+    """
+
+    reset_token_expiry = datetime.datetime.utcnow() + timedelta(hours=1)
+
+    user.reset_token = reset_token
+    user.reset_token_expiry = reset_token_expiry
+
+    db.commit()
+    db.refresh(user)
+
+    return user
+
+
+def authenticate_user_by_reset_token(db: Session, reset_token: str):
+    """
+    Authenticate a user by reset token.
+    This function checks if the provided reset token is valid and not expired.
+    If valid, it returns the user object; otherwise, it returns None.
+    """
+
+    # Query for this reset token in the users table
+    user = db.query(models.User).filter(
+        models.User.reset_token == reset_token,
+        models.User.reset_token_expiry > datetime.datetime.utcnow()
+    ).first()
+
+    # If User is not found in the table or the token is expired, return None
+    if not user:
+        logger.warning(f"Authentication failed for reset token: {reset_token}. Token not found or expired.")
+        return None
+
+    return user
+
+
+def update_user_password(db: Session, user: models.User, new_password: str):
+    """
+    Update the user's password.
+    This function hashes the new password and updates the user's hashed_password field.
+    It also clears the reset token and expiry to prevent further use of the reset token.
+    """
+
+    # Hash the new password
+    hashed_password = get_password_hash(new_password)
+
+    # Update user object
+    user.hashed_password = hashed_password
+    user.reset_token = None
+    user.reset_token_expiry = None
+
+    # Commit changes to the database
+    db.commit()
+    db.refresh(user)
+
+    return user
+
+
 def authenticate_user(db: Session, username: str, password: str):
     """Authenticate a user by username and password."""
 
     # Query for this username in the users table
     user = db.query(models.User).filter(models.User.username == username).first()
 
+    # If User is not found in the table, return boolean False
+    if not user:
+        logger.warning(f"Authentication failed for user: {username}. User not found.")
+        return False
+
     # Check if the password matches what is in the user table for this user
     password_verified = verify_password(password, user.hashed_password)
 
     # If User is not found in the table or the password entered does not match, return boolean False
-    if not user or not password_verified:
+    if not password_verified:
+        logger.warning(f"Authentication failed for user: {username}. Incorrect password.")
         return False
 
     return user

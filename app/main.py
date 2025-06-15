@@ -12,7 +12,7 @@ from sqlalchemy import desc, func
 from sqlalchemy.orm import Session
 import logging
 
-from app import models, schemas, auth, database, config, snake_assignments, tips
+from app import models, schemas, auth, database, config, snake_assignments, tips, emails
 
 
 # Adding logging
@@ -221,6 +221,144 @@ async def login(
     request.session["access_token"] = access_token
 
     return RedirectResponse(url="/profile", status_code=302)
+
+
+@app.get("/forgot-username", response_class=HTMLResponse)
+async def forgot_username_form(request: Request):
+    """
+    Renders the form for a user to request their username.
+    """
+    return templates.TemplateResponse("forgot_username.html", {"request": request})
+
+
+@app.post("/forgot-username")
+async def request_username_recovery(
+    user_email_data: schemas.UserEmail,
+    db: Session = Depends(database.get_db)
+):
+    """
+    Handles the submission of the forgot username form.
+    Finds the user by email and sends them their username.
+    Implements a generic success message for security.
+    """
+    user = db.query(models.User).filter(models.User.email == user_email_data.email).first()
+
+    # CRITICAL SECURITY STEP:
+    # Always send a generic success message, regardless of whether the email
+    # exists in your database. This prevents an attacker from using this
+    # endpoint to enumerate valid email addresses/users on your system.
+    if user:
+        try:
+            # Send the email with the actual username
+            emails.send_username_recovery_email(to_email=user.email, username=user.username)
+            logger.info(f"Username recovery email initiated for {user_email_data.email} (User found).")
+        except Exception as e:
+            # Log the actual error, but don't expose it to the user.
+            logger.error(f"Error sending username recovery email for {user_email_data.email}: {e}")
+            # The user will still receive the generic success message below.
+            pass
+    else:
+        logger.info(f"Forgot username request received for non-existent email: {user_email_data.email}. No email sent.")
+
+    # Always return a generic success message
+    return {"message": "If an account is associated with that email address, your username has been sent to it."}
+
+
+@app.get("/forgot-password", response_class=HTMLResponse)
+async def forgot_password_form(request: Request):
+    """
+    Renders the form for a user to request a password reset.
+    """
+    return templates.TemplateResponse("forgot_password.html", {"request": request})
+
+
+# POST /forgot-password (Handle form submission, send email)
+@app.post("/forgot-password")
+async def request_password_reset(
+    user_email_data: schemas.UserEmail,
+    db: Session = Depends(database.get_db)
+):
+    """
+    Handles the submission of the forgot password form.
+    Finds the user by email, generates a reset token, saves it, and sends the email.
+    """
+    user = db.query(models.User).filter(models.User.email == user_email_data.email).first()
+
+    # CRITICAL SECURITY STEP:
+    # Always send a generic success message, regardless of whether the email
+    # exists in your database. This prevents an attacker from using this
+    # endpoint to enumerate valid email addresses/users on your system.
+    if user:
+
+        reset_token = auth.create_reset_password_token()
+
+        # Generate a unique reset token
+        user = auth.set_user_reset_state(db, user, reset_token)
+
+        try:
+
+            # Send the password reset email
+            send_password_reset_email(to_email=user.email, reset_token=reset_token)
+            logger.info(f"Password reset email initiated for {user_email_data.email} (User found).")
+
+        except Exception as e:
+            logger.error(f"Error sending password reset email for {user_email_data.email}: {e}")
+            # Consider rolling back the token if the email fails.
+            db.rollback() # Or handle more gracefully
+            # But still return the generic success message.
+            pass
+
+    # Generic success message
+    return {"message": "If an account is associated with that email address, a password reset link has been sent to it."}
+
+
+@app.get("/reset-password", response_class=HTMLResponse)
+async def reset_password_form(request: Request, token: str, db: Session = Depends(database.get_db)):
+    """
+    Renders the password reset form after verifying the token.
+    """
+
+    user = auth.authenticate_user_by_reset_token(db, token)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired reset token."
+        )
+
+    return templates.TemplateResponse("reset_password.html", {"request": request, "token": token})
+
+
+# POST /reset-password (Handle the password reset)
+@app.post("/reset-password")
+async def reset_password(
+    password_reset_data: schemas.PasswordReset,
+    token: str = Form(...),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Handles the password reset form submission.
+    Validates the token, updates the password, and invalidates the token.
+    """
+
+    user = auth.authenticate_user_by_reset_token(db, token)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired reset token."
+        )
+
+    if password_reset_data.password != password_reset_data.password_confirm:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Passwords do not match."
+        )
+
+    user = auth.update_user_password(db, user, password_reset_data.password)
+
+    # Redirect to login page (or show a success message)
+    return RedirectResponse(url="/home", status_code=status.HTTP_303_SEE_OTHER)
 
 
 @app.get("/logout")
