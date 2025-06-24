@@ -8,11 +8,14 @@ from botocore.exceptions import ClientError
 ENV = os.environ.get("ENVIRONMENT", "dev")
 SES_SENDER_EMAIL = os.environ.get("SES_SENDER_EMAIL", "no-reply@secretsnakes.com")
 AWS_REGION = os.environ.get("AWS_REGION", "us-east-2")
+BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000")
+
+PRIMARY_COLOR_THREE = "#3d523d"
+ACCENT_COLOR_TWO = "#4682B4"
 
 # Adding logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 
 def send_username_recovery_email(to_email: str, username: str):
@@ -27,11 +30,11 @@ def send_username_recovery_email(to_email: str, username: str):
         <style>
             body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
             .container {{ max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }}
-            .header {{ background-color: #2a7e19; color: #ffffff; padding: 10px 20px; border-radius: 8px 8px 0 0; text-align: center; }}
+            .header {{ background-color: {PRIMARY_COLOR_THREE}; color: #ffffff; padding: 10px 20px; border-radius: 8px 8px 0 0; text-align: center; }}
             .content {{ padding: 20px; }}
             .footer {{ text-align: center; margin-top: 30px; font-size: 0.8em; color: #777; }}
             .username-box {{ background-color: #ffffff; border: 1px solid #eee; padding: 15px; margin-top: 20px; text-align: center; font-size: 1.2em; font-weight: bold; border-radius: 5px; }}
-            .button {{ display: inline-block; padding: 10px 20px; margin-top: 20px; background-color: #3cb371; color: white; text-decoration: none; border-radius: 5px; }}
+            .button {{ display: inline-block; padding: 10px 20px; margin-top: 20px; background-color: {ACCENT_COLOR_TWO}; text-color: #ffffff; text-decoration: none; border-radius: 5px; text-align: center; }}
         </style>
     </head>
     <body>
@@ -46,7 +49,20 @@ def send_username_recovery_email(to_email: str, username: str):
                 </div>
                 <p>You can now use this username to log in.</p>
                 
-                <a href="https://secretsnakes.com/home" class="button">Log In Here</a>
+                <a href="{BASE_URL}/home" 
+                style="
+                        display: inline-block;
+                        padding: 10px 20px;
+                        margin-top: 20px;
+                        background-color: {ACCENT_COLOR_TWO};
+                        color: #ffffff;
+                        text-decoration: none;
+                        border-radius: 5px;
+                        -webkit-text-size-adjust: none;   /* Email client compatibility for text sizing */
+                        mso-hide: all;                    /* Email client compatibility for text sizing */
+                        ">
+                    Log In Here
+                </a>
 
                 <p>If you did not request this, please ignore this email.</p>
             </div>
@@ -97,7 +113,7 @@ def send_password_reset_email(to_email: str, reset_token: str):
     Sends an email to the user with a link to reset their password.
     """
     subject = "Secret Snakes Password Reset"
-    reset_link = f"https://secretsnakes.com/reset-password?token={reset_token}"
+    reset_link = f"{BASE_URL}/reset-password?token={reset_token}"
 
     html_body = f"""
     <html>
@@ -105,10 +121,10 @@ def send_password_reset_email(to_email: str, reset_token: str):
         <style>
             body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
             .container {{ max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }}
-            .header {{ background-color: #2a7e19; color: #ffffff; padding: 10px 20px; border-radius: 8px 8px 0 0; text-align: center; }}
+            .header {{ background-color: {PRIMARY_COLOR_THREE}; color: #ffffff; padding: 10px 20px; border-radius: 8px 8px 0 0; text-align: center; }}
             .content {{ padding: 20px; }}
             .footer {{ text-align: center; margin-top: 30px; font-size: 0.8em; color: #777; }}
-            .button {{ display: inline-block; padding: 10px 20px; margin-top: 20px; background-color: #3cb371; color: white; text-decoration: none; border-radius: 5px; }}
+            .button {{ display: inline-block; padding: 10px 20px; margin-top: 20px; background-color: {ACCENT_COLOR_TWO}; color: white; text-decoration: none; text-color: white; border-radius: 5px; }}
         </style>
     </head>
     <body>
@@ -118,7 +134,20 @@ def send_password_reset_email(to_email: str, reset_token: str):
             </div>
             <div class="content">
                 <p>You recently requested to reset your password.  Please click the link below to reset your password:</p>
-                <a href="{reset_link}" class="button">Reset Your Password</a>
+                <a href="{reset_link}" 
+                    style="
+                        display: inline-block;
+                        padding: 10px 20px;
+                        margin-top: 20px;
+                        background-color: {ACCENT_COLOR_TWO};
+                        color: #ffffff;
+                        text-decoration: none;
+                        border-radius: 5px;
+                        -webkit-text-size-adjust: none;   /* Email client compatibility for text sizing */
+                        mso-hide: all;                    /* Email client compatibility for text sizing */
+                        ">
+                    Reset Your Password
+                </a>
                 <p>This link will expire in one hour.  If you did not request a password reset, you can ignore this email.</p>
             </div>
             <div class="footer">
@@ -169,12 +198,12 @@ def send_assignment_email(to_email, assigned_username, shipping_info, subject="Y
         <style>
             body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
             .container {{ max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }}
-            .header {{ background-color: #2a7e19; color: #ffffff; padding: 10px 20px; border-radius: 8px 8px 0 0; text-align: center; }}
+            .header {{ background-color: {PRIMARY_COLOR_THREE}; color: #ffffff; padding: 10px 20px; border-radius: 8px 8px 0 0; text-align: center; }}
             .content {{ padding: 20px; }}
             .shipping-box {{ background-color: #ffffff; border: 1px dashed #ccc; padding: 15px; margin-top: 20px; border-radius: 5px; }}
             .shipping-box p {{ margin: 5px 0; }}
             .footer {{ text-align: center; margin-top: 30px; font-size: 0.8em; color: #777; }}
-            .button {{ display: inline-block; padding: 10px 20px; margin-top: 20px; background-color: #3cb371; color: white; text-decoration: none; border-radius: 5px; }}
+            .button {{ display: inline-block; padding: 10px 20px; margin-top: 20px; background-color: {ACCENT_COLOR_TWO}; color: white; text-decoration: none; text-color: white; border-radius: 5px; }}
         </style>
     </head>
     <body>
@@ -256,11 +285,11 @@ def send_tip_email(to_email, tip_content, subject="You received a new Snakesmas 
         <style>
             body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
             .container {{ max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }}
-            .header {{ background-color: #2a7e19; color: #ffffff; padding: 10px 20px; border-radius: 8px 8px 0 0; text-align: center; }}
+            .header {{ background-color: {PRIMARY_COLOR_THREE}; color: #ffffff; padding: 10px 20px; border-radius: 8px 8px 0 0; text-align: center; }}
             .content {{ padding: 20px; }}
             .footer {{ text-align: center; margin-top: 30px; font-size: 0.8em; color: #777; }}
             .tip-box {{ background-color: #ffffff; border: 1px solid #eee; padding: 15px; margin-top: 20px; text-align: center; font-size: 1.2em; font-weight: bold; border-radius: 5px; }}
-            .button {{ display: inline-block; padding: 10px 20px; margin-top: 20px; background-color: #3cb371; color: white; text-decoration: none; border-radius: 5px; }}
+            .button {{ display: inline-block; padding: 10px 20px; margin-top: 20px; background-color: {ACCENT_COLOR_TWO}; color: white; text-decoration: none; text-color: white; border-radius: 5px; }}
         </style>
     </head>
     <body>

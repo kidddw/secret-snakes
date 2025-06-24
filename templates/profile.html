@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Profile - Secret Santa{% endblock %}
+{% block title %}Profile - Secret Snakes{% endblock %}
 
 {% block content %}
 
@@ -150,16 +150,18 @@
         {% endif %}
 
     </div> <div id="update-email-modal" class="modal" style="display: none;">
-        <div class="profile-update-modal modal-content">
+        <div class="form-container modal-content">
+
             <h2>Update Email</h2>
             <div class="line"></div>
-            <div class="line-padding"></div>
-            <form id="update-email-form-modal">
-                <div class="property-value"> <div>
-                        <label for="modal-email">Email</label>
-                        <input type="email" id="modal-email" name="email" required>
-                    </div>
+
+            <form id="update-email-form-modal" class="general-form">
+
+                <div>
+                    <label for="modal-email">Email</label>
+                    <input type="email" id="modal-email" name="email" required>
                 </div>
+                
                 <div class="modal-actions">
                     <button type="submit" class="text-button">Submit</button>
                     <button type="button" id="cancel-email-update" class="text-button">Cancel</button>
@@ -169,41 +171,40 @@
     </div>
 
     <div id="update-shipping-modal" class="modal" style="display: none;">
-        <div class="profile-update-modal modal-content">
+        <div class="form-container modal-content">
+
             <h3>Update Shipping Address</h3>
             <div class="line"></div>
-            <div class="line-padding"></div>
-            <form id="update-shipping-form-modal">
 
-                <div class="register-fields-container">
-                    <div>
-                        <label for="first_name">First Name</label>
-                        <input type="text" id="modal_first_name" name="first_name" required>
-                    </div>
-                    <div>
-                        <label for="last_name">Last Name</label>
-                        <input type="text" id="modal_last_name" name="last_name" required>
-                    </div>
-                    <div>
-                        <label for="shipping_street_address">Street Address</label>
-                        <input type="text" id="modal_shipping_street_address" name="shipping_street_address" required>
-                    </div>
-                    <div>
-                        <label for="shipping_unit">Unit (optional)</label>
-                        <input type="text" id="modal_shipping_unit" name="shipping_unit">
-                    </div>
-                    <div>
-                        <label for="shipping_city">City</label>
-                        <input type="text" id="modal_shipping_city" name="shipping_city" required>
-                    </div>
-                    <div>
-                        <label for="shipping_zipcode">Zipcode</label>
-                        <input type="text" id="modal_shipping_zipcode" name="shipping_zipcode" required pattern="\d{5}(-\d{4})?">
-                    </div>
-                    <div>
-                        <label for="shipping_state">State</label>
-                        <input type="text" id="modal_shipping_state" name="shipping_state" required pattern="[A-Z]{2}">
-                    </div>
+            <form id="update-shipping-form-modal" class="general-form">
+
+                <div>
+                    <label for="first_name">First Name</label>
+                    <input type="text" id="modal_first_name" name="first_name" required>
+                </div>
+                <div>
+                    <label for="last_name">Last Name</label>
+                    <input type="text" id="modal_last_name" name="last_name" required>
+                </div>
+                <div>
+                    <label for="shipping_street_address">Street Address</label>
+                    <input type="text" id="modal_shipping_street_address" name="shipping_street_address" required>
+                </div>
+                <div>
+                    <label for="shipping_unit">Unit (optional)</label>
+                    <input type="text" id="modal_shipping_unit" name="shipping_unit">
+                </div>
+                <div>
+                    <label for="shipping_city">City</label>
+                    <input type="text" id="modal_shipping_city" name="shipping_city" required>
+                </div>
+                <div>
+                    <label for="shipping_zipcode">Zipcode</label>
+                    <input type="text" id="modal_shipping_zipcode" name="shipping_zipcode" required pattern="\d{5}(-\d{4})?">
+                </div>
+                <div>
+                    <label for="shipping_state">State</label>
+                    <input type="text" id="modal_shipping_state" name="shipping_state" required pattern="[A-Z]{2}">
                 </div>
 
                 <div class="modal-actions">

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Home - Secret Santa{% endblock %}
+{% block title %}Home - Secret Snakes{% endblock %}
 
 {% block content %}
 
@@ -24,7 +24,12 @@
                 </div>
                 <button type="submit" class="button">Login</button>
             </form>
-            <p>Don't have an account? <a id="register-link" style="cursor: pointer;" class="text-button">Register here</a></p>
+
+            <h3>Don't have an account?</h3>
+            <button id="register-link" class="button">Register here</button>
+
+            <p><a href="/forgot-username" class="text-button">Forgot Username?</a></p>
+            <p><a href="/forgot-password" class="text-button">Forgot Password?</a></p>
         </div>
 
     {% else %}

@@ -284,6 +284,8 @@ async def request_password_reset(
     """
     user = db.query(models.User).filter(models.User.email == user_email_data.email).first()
 
+    print(user_email_data)
+
     # CRITICAL SECURITY STEP:
     # Always send a generic success message, regardless of whether the email
     # exists in your database. This prevents an attacker from using this
@@ -298,7 +300,7 @@ async def request_password_reset(
         try:
 
             # Send the password reset email
-            send_password_reset_email(to_email=user.email, reset_token=reset_token)
+            emails.send_password_reset_email(to_email=user.email, reset_token=reset_token)
             logger.info(f"Password reset email initiated for {user_email_data.email} (User found).")
 
         except Exception as e:
@@ -326,14 +328,14 @@ async def reset_password_form(request: Request, token: str, db: Session = Depend
             detail="Invalid or expired reset token."
         )
 
+    logger.info(f"Reset password form requested for user: {user.username}")
+
     return templates.TemplateResponse("reset_password.html", {"request": request, "token": token})
 
 
-# POST /reset-password (Handle the password reset)
 @app.post("/reset-password")
 async def reset_password(
     password_reset_data: schemas.PasswordReset,
-    token: str = Form(...),
     db: Session = Depends(database.get_db)
 ):
     """
@@ -341,15 +343,19 @@ async def reset_password(
     Validates the token, updates the password, and invalidates the token.
     """
 
-    user = auth.authenticate_user_by_reset_token(db, token)
+    user = auth.authenticate_user_by_reset_token(db, password_reset_data.token)
 
     if not user:
+        logger.warning(f"Invalid or expired reset token for user: {password_reset_data.token}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired reset token."
         )
 
+    logger.info(f"Reset password initiated requested for user: {user.username}")
+
     if password_reset_data.password != password_reset_data.password_confirm:
+        logger.info(f"Password reset failed for user: {user.username} - passwords do not match.")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Passwords do not match."
@@ -358,7 +364,7 @@ async def reset_password(
     user = auth.update_user_password(db, user, password_reset_data.password)
 
     # Redirect to login page (or show a success message)
-    return RedirectResponse(url="/home", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(url="/", status_code=302)
 
 
 @app.get("/logout")
@@ -399,85 +405,6 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     )
 
     return {"access_token": access_token, "token_type": "bearer"}
-
-
-@app.get("/forgot-password", response_class=HTMLResponse)
-async def forgot_password_form(request: Request):
-    return templates.TemplateResponse("forgot_password.html", {"request": request})
-
-
-@app.post("/forgot-password")
-async def forgot_password(
-        request: Request,
-        email: str = Form(...),
-        db: Session = Depends(database.get_db)
-):
-    user = db.query(models.User).filter(models.User.email == email).first()
-    if user:
-
-        # Create access token for reset
-        reset_token = auth.create_access_token(
-            data={"sub": user.username},
-            expires_delta=datetime.timedelta(minutes=15)
-        )
-
-        # Store token in database
-        user.reset_token = reset_token
-        user.reset_token_expiry = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
-        db.commit()
-
-        # Send email (implementation example)
-        reset_link = f"http://yourdomain.com/reset-password?token={reset_token}"  #todo
-        message = MessageSchema(
-            subject="Password Reset Request",
-            recipients=[email],
-            body=f"Click to reset: {reset_link}",
-            subtype="html"
-        )
-        fm = FastMail(conf)
-        await fm.send_message(message)
-
-    return templates.TemplateResponse("reset_instructions_sent.html", {"request": request})
-
-
-@app.get("/reset-password", response_class=HTMLResponse)
-async def reset_password_form(request: Request, token: str):
-    return templates.TemplateResponse("forgot_password.html", {"request": request, "token": token})
-
-
-@app.post("/reset-password")
-async def reset_password(
-        request: Request,
-        access_token: str = Form(...),
-        new_password: str = Form(...),
-        db: Session = Depends(database.get_db)
-):
-    try:
-
-        # Determine user from access token
-        user = auth.get_user_for_reset(db, access_token)
-
-        # If no valid user returned, raise exception
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid or expired token",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-
-        user.hashed_password = auth.get_password_hash(new_password)
-        user.reset_token = None
-        user.reset_token_expiry = None
-        db.commit()
-        return RedirectResponse(url="/", status_code=303)
-
-    except Exception as e:
-        pass
-
-    return templates.TemplateResponse("forgot_password.html", {
-        "request": request,
-        "error": "Invalid or expired token"
-    })
 
 
 @app.get("/users/me", response_model=schemas.User)

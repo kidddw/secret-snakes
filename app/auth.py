@@ -1,10 +1,10 @@
 import os
 import uuid
+import datetime
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt, ExpiredSignatureError
 from passlib.context import CryptContext
-from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from pydantic import ValidationError
 import logging
@@ -46,7 +46,7 @@ def set_user_reset_state(db: Session, user: models.User, reset_token: str = None
     This function generates a unique reset token and sets its expiry to 1 hour from now.
     """
 
-    reset_token_expiry = datetime.datetime.utcnow() + timedelta(hours=1)
+    reset_token_expiry = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
 
     user.reset_token = reset_token
     user.reset_token_expiry = reset_token_expiry
@@ -67,7 +67,7 @@ def authenticate_user_by_reset_token(db: Session, reset_token: str):
     # Query for this reset token in the users table
     user = db.query(models.User).filter(
         models.User.reset_token == reset_token,
-        models.User.reset_token_expiry > datetime.datetime.utcnow()
+        models.User.reset_token_expiry > datetime.datetime.now(datetime.timezone.utc)
     ).first()
 
     # If User is not found in the table or the token is expired, return None
@@ -87,15 +87,20 @@ def update_user_password(db: Session, user: models.User, new_password: str):
 
     # Hash the new password
     hashed_password = get_password_hash(new_password)
+    logger.info(f"Updating password for user: {user.username}")
 
     # Update user object
     user.hashed_password = hashed_password
     user.reset_token = None
     user.reset_token_expiry = None
 
+    logger.info(f"Password updated successfully for user: {user.username}")
+
     # Commit changes to the database
     db.commit()
     db.refresh(user)
+
+    logger.info(f"User {user.username} password updated and reset token cleared.")
 
     return user
 
@@ -122,7 +127,7 @@ def authenticate_user(db: Session, username: str, password: str):
     return user
 
 
-def create_access_token(data: dict, expires_delta: timedelta = None):
+def create_access_token(data: dict, expires_delta: datetime.timedelta = None):
     """
     Create a new access token.
     Create a JSON Web Token
@@ -141,7 +146,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 
     # Set expiration time
     # Use expires_delta if provided else use 15 minutes as default
-    expiration_time = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    expiration_time = datetime.datetime.now(datetime.timezone.utc) + (expires_delta or datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
 
     # Add expiration time to the data dictionary
     to_encode.update({"exp": expiration_time})
@@ -222,7 +227,7 @@ def get_user_for_reset(db: Session = Depends(database.get_db), token: str = Depe
     user = db.query(models.User).filter(
         models.User.username == token_data.username,
         models.User.reset_token == token,
-        models.User.reset_token_expiry > datetime.utcnow()
+        models.User.reset_token_expiry > datetime.datetime.now(datetime.timezone.utc)
     ).first()
 
     return user

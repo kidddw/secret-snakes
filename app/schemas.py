@@ -81,6 +81,7 @@ class UserEmail(BaseModel):
 
 
 class PasswordReset(BaseModel):
+    token: str
     password: str
     password_confirm: str
     

@@ -167,7 +167,7 @@ header .current a {
     border: none;
     color: var(--text-button-color);
     cursor: pointer;
-    text-decoration: underline;
+    text-decoration: none;
     font-size: 0.95rem;
     transition: color 0.1s;
 }
@@ -221,32 +221,59 @@ main {
 }
 
 /* Forms */
-.form-field-group {
+
+.form-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: var(--container-background-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.form-container h2,
+.form-container h3 {
+    color: var(--accent-color-two);
+    margin-bottom: 20px;
+    text-align: center;
+
+}
+
+.form-container h3 {
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.form-container > div {
     display: flex;
     flex-direction: column;
     text-align: left;
+    margin-bottom: 40px;
 }
 
-.form-field-group label {
+.form-container .button {
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto 0 auto;
+    display: block;
+}
+
+.general-form {
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
+    margin: 0 auto;
+    gap: 15px;
+    padding: 0 10px;
+    text-align: left;
+}
+
+.general-form label {
     margin-bottom: 5px;
     font-weight: bold;
     display: block;
 }
-
-/* General input styles for various form fields */
-.form-field-group input[type="text"],
-.form-field-group input[type="password"],
-.form-field-group input[type="email"],
-.form-field-group input[type="number"],
-.form-field-group textarea,
-.form-field-group select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid var(--neutral-color-four);
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-size: 1rem;
-}  
 
 
 /* Specific email input for profile page */
@@ -283,6 +310,12 @@ input[type="number"] {
     margin-bottom: 20px;
 }
 
+.login-container h3 {
+    color: var(--accent-color-two);
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
 #login-form {
     display: flex;
     flex-direction: column;
@@ -311,62 +344,6 @@ input[type="number"] {
 .home-container p {
     margin-bottom: 20px;
     font-size: 1.1rem;
-}
-
-/* Registration Page */
-.register-container {
-    max-width: 600px;
-    margin: 50px auto;
-    padding: 20px;
-    background-color: var(--container-background-color);
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-.register-container h2,
-.register-container h3 {
-    color: var(--accent-color-two);
-    margin-bottom: 20px;
-}
-
-.register-container h3 {
-    margin-bottom: 10px;
-}
-
-#register-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 0 10px;
-}
-
-#register-form .register-fields-container > div {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-}
-
-#register-form label {
-    margin-bottom: 5px;
-    font-weight: bold;
-    display: block;
-}
-
-.register-container .button {
-    width: 100%;
-    max-width: 400px;
-    margin: 20px auto 0 auto;
-    display: block;
-}
-
-.register-fields-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 40px;
 }
 
 /* Profile Page */
@@ -441,48 +418,6 @@ input[type="number"] {
 }
 
 #profile-update-modal > div {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-}
-
-/* Update Shipping Form Specifics */
-#update-shipping-form-modal label {
-    margin-bottom: 5px;
-    font-weight: bold;
-    display: block;
-    text-align: left;
-}
-
-#update-shipping-form .property-value {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    padding: 0;
-}
-
-#update-shipping-form .property-value > div {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-}
-
-/* Update Email Form Specifics */
-#update-email-form-modal label {
-    margin-bottom: 5px;
-    font-weight: bold;
-    display: block;
-    text-align: left;
-}
-
-#update-email-form-modal .property-value {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    padding: 0;
-}
-
-#update-email-form-modal .property-value > div {
     display: flex;
     flex-direction: column;
     text-align: left;
@@ -661,6 +596,13 @@ input[type="number"] {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
 /* Media Queries for Responsiveness */
 
 /* Small devices (phones, 600px and down) */
@@ -739,21 +681,21 @@ input[type="number"] {
         font-size: 0.95rem;
     }
 
-    /* Registration Page */
-    #register-form > div {
+    /* Forms */
+    .general-form > div {
         flex-direction: row;
         align-items: center;
         gap: 15px;
         justify-content: flex-start;
     }
 
-    #register-form label {
+    .general-form label {
         flex-basis: 150px;
         text-align: right;
         margin-bottom: 0;
     }
 
-    #register-form input {
+    .general-form input {
         flex-grow: 1;
         max-width: 250px;
     }
