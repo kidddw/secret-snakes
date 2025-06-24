@@ -87,20 +87,15 @@ def update_user_password(db: Session, user: models.User, new_password: str):
 
     # Hash the new password
     hashed_password = get_password_hash(new_password)
-    logger.info(f"Updating password for user: {user.username}")
 
     # Update user object
     user.hashed_password = hashed_password
     user.reset_token = None
     user.reset_token_expiry = None
 
-    logger.info(f"Password updated successfully for user: {user.username}")
-
     # Commit changes to the database
     db.commit()
     db.refresh(user)
-
-    logger.info(f"User {user.username} password updated and reset token cleared.")
 
     return user
 

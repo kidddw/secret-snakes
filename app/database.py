@@ -3,7 +3,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.models import Base
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./secret_snakes.db"
+SQLITE_DATABASE_FILEPATH = os.environ.get("SQLITE_DATABASE_FILEPATH", "./database.db")
+SQLALCHEMY_DATABASE_URL = f"sqlite:///{SQLITE_DATABASE_FILEPATH}"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(
@@ -17,7 +18,7 @@ def init_db():
     """
     If no database exists, create all tables in the database.
     """
-    if not os.path.exists("./database.db"):
+    if not os.path.exists(SQLITE_DATABASE_FILEPATH):
     
         # Initialize the database
         Base.metadata.create_all(bind=engine)

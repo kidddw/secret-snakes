@@ -104,8 +104,6 @@ async def check_registration_status(
     allow_registration = config.get_config(db).get("allow_registration", "True")
     allow_registration = (allow_registration == "True")
 
-    print('CHECKING REGISTRATION STATUS', allow_registration, type(allow_registration))
-
     return {"allow_registration": allow_registration}
 
 
@@ -284,8 +282,6 @@ async def request_password_reset(
     """
     user = db.query(models.User).filter(models.User.email == user_email_data.email).first()
 
-    print(user_email_data)
-
     # CRITICAL SECURITY STEP:
     # Always send a generic success message, regardless of whether the email
     # exists in your database. This prevents an attacker from using this
@@ -355,7 +351,7 @@ async def reset_password(
     logger.info(f"Reset password initiated requested for user: {user.username}")
 
     if password_reset_data.password != password_reset_data.password_confirm:
-        logger.info(f"Password reset failed for user: {user.username} - passwords do not match.")
+        logger.warning(f"Password reset failed for user: {user.username} - passwords do not match.")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Passwords do not match."
