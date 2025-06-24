@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 # Define the path to your .env file
 # Assuming your .env file is in the same directory as this script.
