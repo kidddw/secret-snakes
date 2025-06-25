@@ -22,7 +22,7 @@ def init_db():
     
         # Initialize the database
         Base.metadata.create_all(bind=engine)
-        print("Database created.")
+        print(f"Database created at {SQLITE_DATABASE_FILEPATH}.")
 
     else:
         print("Database already exists.")
