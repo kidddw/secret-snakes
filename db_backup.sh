@@ -20,7 +20,7 @@ fi
 # It will be automatically set by the 'source' command if it's in your .env
 # Make sure SQLITE_DATABASE_FILEPATH is defined in your .env like:
 # SQLITE_DATABASE_FILEPATH=/path/to/your/secret_snakes.db
-DB_FILE="$SQLITE_DATABASE_FILEPATH"
+DB_FILE="$SQLITE_DATABASE_FILEPATH_LOCAL"
 
 # Check if DB_FILE is set
 if [ -z "$DB_FILE" ]; then
