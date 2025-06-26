@@ -205,6 +205,7 @@ async def login(
 
     # Check if user exists
     user = auth.authenticate_user(db, form_data.username, form_data.password)
+    logger.info(f"User authenticated: {user}")
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -214,6 +215,7 @@ async def login(
 
     # Create an authentication token
     access_token = auth.create_access_token(data={"sub": user.username})
+    logger.info(f"Access token created: {access_token}")
 
     # Store the token in the session
     request.session["access_token"] = access_token
