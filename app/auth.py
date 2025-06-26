@@ -171,16 +171,25 @@ def get_current_user(db: Session = Depends(database.get_db), token: str = Depend
         if username is None:
             raise credentials_exception
 
+        logger.info(f"Resolved username: {username}")
+
         # Create TokenData class instance
         token_data = schemas.TokenData(username=username)
 
     except (JWTError, ValidationError):
+        logger.info(f"Invalid token or payload for user: {username}")
         logger.warning("Could not validate credentials")
         return None
 
     except ExpiredSignatureError:
         logger.warning("Token expired.")
         return None
+
+    print('ALL USERS: ')
+    # Query all users and print their usernames
+    users = db.query(models.User).all()
+    for user in users:
+        print('   ', user.username)
 
     # Query for this username in the users table
     user = db.query(models.User).filter(models.User.username == token_data.username).first()
