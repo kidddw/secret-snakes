@@ -147,14 +147,7 @@ def create_access_token(data: dict, expires_delta: datetime.timedelta = None):
     to_encode.update({"exp": expiration_time})
 
     # Create a JSON Web Token
-    logger.info(f"Creating access token for data: {to_encode}")
-    logger.info(f"Using secret key: {SECRET_KEY} and algorithm: {ALGORITHM}")
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    logger.info(f"Encoded JWT: {encoded_jwt}")
-
-    # todo: REMOVE THIS
-    payload = jwt.decode(encoded_jwt, SECRET_KEY, algorithms=[ALGORITHM])
-    logger.info(f"Decoded payload: {payload}")
 
     return encoded_jwt
 
@@ -172,36 +165,22 @@ def get_current_user(db: Session = Depends(database.get_db), token: str = Depend
     # Initialize username
     username = None
 
-    logger.info(f"Attempting to decode token: {token}")
-
     try:
 
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        logger.info(f"Decoded payload: {payload}")
         username: str = payload.get("sub")
-        logger.info(f"Resolved username: {username}")
 
         # If no username found in json web token, raise invalid credentials exception
         if username is None:
             raise credentials_exception
 
-        # Create TokenData class instance
-        token_data = schemas.TokenData(username=username)
-
     except (JWTError, ValidationError):
-        logger.info(f"Invalid token or payload for user: {username}")
         logger.warning("Could not validate credentials")
         return None
 
     except ExpiredSignatureError:
         logger.warning("Token expired.")
         return None
-
-    print('ALL USERS: ')
-    # Query all users and print their usernames
-    users = db.query(models.User).all()
-    for user in users:
-        print('   ', user.username)
 
     # Query for this username in the users table
     user = db.query(models.User).filter(models.User.username == username).first()

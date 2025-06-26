@@ -59,37 +59,41 @@
 
     <div class="assignment-tips-panel common-panel">
 
-        <h2>Tips Left for {{ assigned_user.first_name }}</h2>
-        <div class="line"></div>
-        <div class="line-padding"></div>
+        {% if assignment %}
 
-        <div class="assignment-tips-container">
+            <h2>Tips Left for {{ assigned_user.first_name }}</h2>
+            <div class="line"></div>
+            <div class="line-padding"></div>
 
-            {% if current_tips %}
+            <div class="assignment-tips-container">
 
-                <ul class="assignment-tips-list">
+                {% if current_tips %}
 
-                    {% for tip in current_tips %}
+                    <ul class="assignment-tips-list">
 
-                        <li class="assignment-tip-item">
+                        {% for tip in current_tips %}
 
-                            <i>{{ tip.content }}</i>
-                            <br>
-                            <small>{{ tip.created_at.strftime('%b. %d %Y')}}</small>
+                            <li class="assignment-tip-item">
 
-                        </li>
+                                <i>{{ tip.content }}</i>
+                                <br>
+                                <small>{{ tip.created_at.strftime('%b. %d %Y')}}</small>
 
-                    {% endfor %}
+                            </li>
 
-                </ul>
+                        {% endfor %}
 
-            {% else %}
+                    </ul>
 
-                <p>No tips have been left for this user yet.</p>
+                {% else %}
 
-            {% endif %}
+                    <p>No tips have been left for this user yet.</p>
 
-        </div>
+                {% endif %}
+
+            </div>
+
+        {% endif %}
 
     </div>
 
