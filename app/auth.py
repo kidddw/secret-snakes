@@ -147,6 +147,8 @@ def create_access_token(data: dict, expires_delta: datetime.timedelta = None):
     to_encode.update({"exp": expiration_time})
 
     # Create a JSON Web Token
+    logger.info(f"Creating access token for data: {to_encode}")
+    logger.info(f"Using secret key: {SECRET_KEY} and algorithm: {ALGORITHM}")
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
     return encoded_jwt
@@ -165,7 +167,7 @@ def get_current_user(db: Session = Depends(database.get_db), token: str = Depend
     # Initialize username
     username = None
 
-    logger.info(f"Attempting to decode token: {token}.")
+    logger.info(f"Attempting to decode token: {token}")
 
     try:
 

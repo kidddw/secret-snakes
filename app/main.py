@@ -205,7 +205,7 @@ async def login(
 
     # Check if user exists
     user = auth.authenticate_user(db, form_data.username, form_data.password)
-    logger.info(f"User authenticated: {user}")
+    logger.info(f"User authenticated: {user.username}")
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
