@@ -150,6 +150,11 @@ def create_access_token(data: dict, expires_delta: datetime.timedelta = None):
     logger.info(f"Creating access token for data: {to_encode}")
     logger.info(f"Using secret key: {SECRET_KEY} and algorithm: {ALGORITHM}")
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    logger.info(f"Encoded JWT: {encoded_jwt}")
+
+    # todo: REMOVE THIS
+    payload = jwt.decode(encoded_jwt, SECRET_KEY, algorithms=[ALGORITHM])
+    logger.info(f"Decoded payload: {payload}")
 
     return encoded_jwt
 
