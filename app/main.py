@@ -668,7 +668,14 @@ async def assignment(
     ).first()
 
     if not assignment:
-        return templates.TemplateResponse("assignment.html", {"request": request, "assignment": None})
+        context = {
+            "request": request,
+            "assignment": None,
+            "assigned_user": None,
+            "current_tips": None,
+            "user_authenticated": True
+        }
+        return templates.TemplateResponse("assignment.html", context)
 
     # Get the user they are assigned to (assigned_user)
     assigned_user = db.query(models.User).filter(models.User.id == assignment.assigned_user_id).first()
@@ -678,11 +685,6 @@ async def assignment(
 
     # Get tips for the assigned user
     current_tips = tips.get_tips_for_subject_user(db, assigned_user.id, assignment_year)
-
-    # # Ensure created_at is a datetime object
-    # for tip in current_tips:
-    #     if tip.created_at and not isinstance(tip.created_at, datetime.datetime):
-    #         tip.created_at = datetime.datetime.fromisoformat(str(tip.created_at))  # Convert to datetime
 
     context = {
         "request": request,
