@@ -162,16 +162,21 @@ def get_current_user(db: Session = Depends(database.get_db), token: str = Depend
         headers={"WWW-Authenticate": "Bearer"},
     )
 
+    # Initialize username
+    username = None
+
+    logger.info(f"Attempting to decode token: {token}.")
+
     try:
 
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        logger.info(f"Decoded payload: {payload}")
         username: str = payload.get("sub")
+        logger.info(f"Resolved username: {username}")
 
         # If no username found in json web token, raise invalid credentials exception
         if username is None:
             raise credentials_exception
-
-        logger.info(f"Resolved username: {username}")
 
         # Create TokenData class instance
         token_data = schemas.TokenData(username=username)
@@ -192,7 +197,7 @@ def get_current_user(db: Session = Depends(database.get_db), token: str = Depend
         print('   ', user.username)
 
     # Query for this username in the users table
-    user = db.query(models.User).filter(models.User.username == token_data.username).first()
+    user = db.query(models.User).filter(models.User.username == username).first()
 
     return user
 
