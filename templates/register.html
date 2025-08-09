@@ -52,7 +52,7 @@
             </div>
             <div>
                 <label for="shipping_zipcode">Zipcode</label>
-                <input type="text" id="shipping_zipcode" name="shipping_zipcode" required pattern="^\\d{5}(-\\d{4})?$|^[A-Za-z]\\d[A-Za-z] \\d[A-Za-z]\\d$">
+                <input type="text" id="shipping_zipcode" name="shipping_zipcode" required pattern="^(?i)(\d{5}(-\d{4})?|[A-CEGHJ-NPRSTVXY]\d[A-CEGHJ-NPRSTV-Z] ?\d[A-CEGHJ-NPRSTV-Z]\d)$">
             </div>
             <div>
                 <label for="shipping_state">State</label>
