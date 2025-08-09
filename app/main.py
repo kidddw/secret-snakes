@@ -670,6 +670,7 @@ async def assignment(
     if not assignment:
         context = {
             "request": request,
+            "assignment_year": assignment_year,
             "assignment": None,
             "assigned_user": None,
             "current_tips": None,
@@ -688,6 +689,7 @@ async def assignment(
 
     context = {
         "request": request,
+        "assignment_year": assignment_year,
         "assignment": assignment,
         "assigned_user": assigned_user,
         "current_tips": current_tips,

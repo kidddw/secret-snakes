@@ -8,11 +8,11 @@
 
     <div class="assignment-left-panel common-panel">
 
-        {% if assignment %}
+        <h2>Assignment for {{ assignment_year }}</h2>
+        <div class="line"></div>
+        <div class="line-padding"></div>
 
-            <h2>Assignment for {{ assignment.year }}</h2>
-            <div class="line"></div>
-            <div class="line-padding"></div>
+        {% if assignment %}
 
             <div class="property-container">
 
@@ -59,11 +59,12 @@
 
     <div class="assignment-tips-panel common-panel">
 
+        <h2>Tips Left for Your Snake</h2>
+        <div class="line"></div>
+        <div class="line-padding"></div>
+
         {% if assignment %}
 
-            <h2>Tips Left for {{ assigned_user.first_name }}</h2>
-            <div class="line"></div>
-            <div class="line-padding"></div>
 
             <div class="assignment-tips-container">
 

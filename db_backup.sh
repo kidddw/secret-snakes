@@ -3,7 +3,7 @@
 # Define the path to your .env file
 # Assuming your .env file is in the same directory as this script.
 # Adjust this path if your .env file is located elsewhere.
-ENV_FILE="./.env"
+ENV_FILE="./secret-snakes/.env"
 
 # Check if the .env file exists
 if [ -f "$ENV_FILE" ]; then
