@@ -200,7 +200,7 @@
                 </div>
                 <div>
                     <label for="shipping_zipcode">Zipcode</label>
-                    <input type="text" id="modal_shipping_zipcode" name="shipping_zipcode" required pattern="\d{5}(-\d{4})?">
+                    <input type="text" id="modal_shipping_zipcode" name="shipping_zipcode" required pattern="^\\d{5}(-\\d{4})?$|^[A-Za-z]\\d[A-Za-z] \\d[A-Za-z]\\d$">
                 </div>
                 <div>
                     <label for="shipping_state">State</label>
