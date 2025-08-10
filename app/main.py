@@ -9,7 +9,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema
 from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy import desc, func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 import logging
 
 from app import models, schemas, auth, database, config, snake_assignments, tips, emails
@@ -434,16 +434,20 @@ async def profile(
         all_users = db.query(models.User).all() if current_user.is_admin else []
 
         # Fetch user's assignments
-        assignments = db.query(models.Assignment).filter(
+        user_assignments = db.query(models.Assignment).filter(
             models.Assignment.assignee_user_id == current_user.id
         ).order_by(desc(models.Assignment.year)).all()
 
-        # Get the latest year in the assignments table
-        latest_year = db.query(func.max(models.Assignment.year)).scalar()
-
         # Get the current assignment year
         assignment_year = config.get_config(db)['assignment_year']
-        assignment_year = int(assignment_year) if assignment_year else latest_year
+
+        # Get current year's exclusions if admin
+        current_exclusions = snake_assignments.fetch_exclusions(db, assignment_year) if current_user.is_admin else None
+
+        # Check if assignments exist for the current assignment year
+        assignments_exist_for_year = db.query(models.Assignment).filter(
+            models.Assignment.year == assignment_year
+        ).first() is not None
 
         # Check if registration is allowed
         allow_registration = config.get_config(db).get("allow_registration", "True")
@@ -457,8 +461,10 @@ async def profile(
             "user": current_user,
             "is_admin": current_user.is_admin,
             "all_users": all_users,
-            "assignments": assignments,
+            "assignments": user_assignments,
             "assignment_year": assignment_year,
+            "current_exclusions": current_exclusions,
+            "assignments_exist_for_year": assignments_exist_for_year,
             "allow_registration": allow_registration,
             "number_of_tips": number_of_tips,
             "user_authenticated": True
@@ -596,6 +602,51 @@ def set_assignment_year(
     return {"message": f"Assignment year set to {assignment_year_request.assignment_year} successfully"}
 
 
+@app.post("/admin/exclusions", response_model=dict)
+def set_exclusions(
+    request: Request,
+    exclusion_request: schemas.ExclusionCreate,
+    db: Session = Depends(database.get_db)
+):
+    """If current user is admin, set exclusion rules for a specific year."""
+
+    # Get the token from the session
+    access_token = request.session.get("access_token")
+
+    # Get current user and generate context for template response
+    current_user = auth.get_current_user(db, access_token)
+
+    # Check if current user is admin
+    auth.get_current_admin_user(current_user)
+
+    # Check if assignments already exist for the year
+    existing_assignments = db.query(models.Assignment).filter(models.Assignment.year == exclusion_request.year).first()
+    if existing_assignments:
+        raise HTTPException(
+            status_code=400,
+            detail="Assignments for this year have already been created. Exclusions cannot be updated."
+        )
+
+    # Delete existing exclusions for this giver and year to allow for overwriting
+    db.query(models.AssignmentExclusion).filter(
+        models.AssignmentExclusion.year == exclusion_request.year,
+        models.AssignmentExclusion.giver_user_id == exclusion_request.giver_id
+    ).delete()
+
+    # Create new exclusions
+    for excluded_id in exclusion_request.excluded_receivers:
+        new_exclusion = models.AssignmentExclusion(
+            year=exclusion_request.year,
+            giver_user_id=exclusion_request.giver_id,
+            excluded_user_id=excluded_id
+        )
+        db.add(new_exclusion)
+    
+    db.commit()
+
+    return {"message": "Exclusions updated successfully."}
+
+
 @app.post("/admin/assign", response_model=dict)
 def create_assignments(
         request: Request,
@@ -612,6 +663,8 @@ def create_assignments(
 
     # Check if current user is admin
     auth.get_current_admin_user(current_user)
+
+    print(f"Assignments request: {assignments_request}")
 
     # Parse assignment request, create assignments, and record assignments to the database
     assignments_request_dict = assignments_request.dict()
@@ -630,7 +683,9 @@ def create_assignments(
 
     # Check if we have valid assignments
     if assignments is None:
-        raise HTTPException(status_code=400, detail="Unable to create valid assignments")
+        error_string = "Unable to create valid assignments. This may be due to too many restrictions (e.g., small group size with many exclusions)."
+        error_string += " Please adjust participants or exclusions and try again."
+        raise HTTPException(status_code=400, detail= error_string)
 
     return {"message": "Assignments created successfully"}
 

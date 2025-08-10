@@ -24,15 +24,9 @@ def init_db():
     """
     If no database exists, create all tables in the database.
     """
-    if not os.path.exists(SQLITE_DATABASE_FILEPATH):
-    
-        # Initialize the database
-        logger.info(f"Initializing database. Creating tables if they don't exist in: {SQLALCHEMY_DATABASE_URL}")
-        Base.metadata.create_all(bind=engine)
-        logger.info(f"Database created at {SQLITE_DATABASE_FILEPATH}.")
-
-    else:
-        logger.info("Database already exists.")
+    logger.info("Checking for and creating any missing database tables.")
+    Base.metadata.create_all(bind=engine)
+    logger.info("Database initialization complete.")
 
 
 def get_db():

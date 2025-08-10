@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Boolean, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Boolean, Integer, String, DateTime, ForeignKey, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import UniqueConstraint, CheckConstraint
@@ -26,6 +26,23 @@ class User(Base):
     shipping_city = Column(String)
     shipping_zipcode = Column(String)
     shipping_state = Column(String)
+
+
+class AssignmentExclusion(Base):
+    __tablename__ = "assignemnt_exclusions"
+    
+    # Composite primary key for year-specific rules
+    year = Column(Integer, nullable=False)
+    giver_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    excluded_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    
+    __table_args__ = (
+        PrimaryKeyConstraint('year', 'giver_user_id', 'excluded_user_id'),
+    )
+    
+    # Optional: relationships to link back to the User model
+    giver = relationship("User", foreign_keys=[giver_user_id])
+    excluded = relationship("User", foreign_keys=[excluded_user_id])
 
 
 class Assignment(Base):

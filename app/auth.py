@@ -106,20 +106,6 @@ def authenticate_user(db: Session, username: str, password: str):
     # Query for this username in the users table
     user = db.query(models.User).filter(models.User.username == username).first()
 
-    print(user)
-    print(db.query(models.User))
-
-    if user is None:
-        print(f"User with username '{username}' not found. Here are all the users in the table:")
-        
-        all_users = db.query(models.User).all()
-        
-        if not all_users:
-            print("The users table is empty!")
-        else:
-            for u in all_users:
-                print(f"  - Username: '{u.username}', ID: {u.id}")
-
     # If User is not found in the table, return boolean False
     if not user:
         logger.warning(f"Authentication failed for user: {username}. User not found.")

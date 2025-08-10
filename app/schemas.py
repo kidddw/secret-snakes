@@ -86,6 +86,12 @@ class PasswordReset(BaseModel):
     password_confirm: str
     
 
+class ExclusionCreate(BaseModel):
+    year: int
+    giver_id: int
+    excluded_receivers: List[int]
+    
+
 class AssignmentBase(BaseModel):
     """
     Serves as the foundation for assignment-related data models.

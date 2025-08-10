@@ -64,13 +64,13 @@
             {% if assignments %}
 
                 {% set years = assignments | map(attribute='year') | list %}
-                {% if assignment_year not in years %}
+                {% if assignment_year|int not in years %}
                     <div class="current-assignment assignment">Assignments haven't been made yet</div>
                 {% endif %}
 
                 {% for assignment in assignments %}
 
-                    {% if assignment.year == assignment_year %}
+                    {% if assignment.year == assignment_year|int %}
 
                             <div class="current-assignment-container">
 
@@ -109,8 +109,8 @@
             <div class="line"></div>
             <div class="line-padding"></div>
 
+            <h4>Toggle Registration</h4>
             <form id="toggle-registration-form">
-                <h4>Toggle Registration</h4>
                 <div>
                     <label for="allow_registration">Allow Registration:</label>
                     <input type="checkbox" id="allow_registration" name="allow_registration" {% if allow_registration %}checked{% endif %}>
@@ -118,8 +118,8 @@
                 <button type="submit" class="button">Save</button>
             </form>
 
+            <h4>Set Current Assignment Year</h4>
             <form id="year-form">
-                <h4>Set Current Assignment Year</h4>
                 <div>
                     <label for="assignment_year">Assignment Year:</label>
                     <input type="number" id="assignment_year" name="assignment_year" required value="{{ assignment_year }}">
@@ -127,12 +127,45 @@
                 <button type="submit" class="button">Save Year</button>
             </form>
 
-            <form id="assign-form">
-                <h4>Create Assignments</h4>
+            <h4>Set Set Assignment Exclusions</h4>
+
+            {% if assignments_exist_for_year %}
+            <p>Assignments already created for {{ assignment_year }}</p>
+            <p>Exclusions for this year:</p>
+
+            {% else %}
+            <form id="exclusion-form">
                 <div>
-                    <label for="year">Year:</label>
-                    <input type="number" id="year" name="year" required>
+                    <label for="giver-select">Select User (Giver):</label>
+                    <select id="giver-select" name="giver_id" required>
+                        {% for user in all_users %}
+                        <option value="{{ user.id }}">{{ user.first_name }} {{ user.last_name }} ({{ user.username }})</option>
+                        {% endfor %}
+                    </select>
                 </div>
+                <div>
+                    <label>Excluded Receivers:</label>
+                    <div class="participant-list">
+                        {% for user in all_users %}
+                        <label>
+                            <input type="checkbox" name="excluded_receivers" value="{{ user.id }}">
+                            {{ user.first_name }} {{ user.last_name }} ({{ user.username }})
+                        </label><br>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button type="submit" class="button">Save Exclusions</button>
+            </form>
+            
+            {% endif %}
+
+            <h4>Create Assignments</h4>
+
+            {% if assignments_exist_for_year %}
+            <p>Assignments already created for {{ assignment_year }}</p>
+
+            {% else %}
+            <form id="assign-form">
                 <div>
                     <label>Participants:</label>
                     <div class="participant-list">
@@ -146,6 +179,9 @@
                 </div>
                 <button type="submit" class="button">Create Assignments</button>
             </form>
+
+            {% endif %}
+
         </div>
         {% endif %}
 
@@ -309,65 +345,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Your existing admin functions (no changes needed for these for modal functionality)
+    // ADMIN FUNCTIONS
     {% if is_admin %}
-    document.getElementById('assign-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const year = document.getElementById('year').value;
-        const participants = Array.from(document.querySelectorAll('input[name="participants"]:checked'))
-            .map(checkbox => checkbox.value);
 
-        fetch('/admin/assign', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                year: parseInt(year),
-                participants: participants
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            alert(data.message);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred. Please try again.');
-        });
-    });
-    document.getElementById('year-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const assignmentYear = document.getElementById('assignment_year').value;
+    // Store exclusions data from the server-side to be used by JavaScript
+    const currentExclusions = {{ current_exclusions | tojson }};
 
-        fetch('/admin/set-assignment-year', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                assignment_year: parseInt(assignmentYear)
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            alert(data.message);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred. Please try again.');
-        });
-    });
+    // Admin functions for toggling registration
     document.getElementById('toggle-registration-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const allowRegistration = document.getElementById('allow_registration').checked;
@@ -399,7 +383,142 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('An error occurred. Please try again.');
         });
     });
+
+    // Admin functions for setting assignment year
+    document.getElementById('year-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const assignmentYear = document.getElementById('assignment_year').value;
+
+        fetch('/admin/set-assignment-year', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                assignment_year: parseInt(assignmentYear)
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        });
+    });
+
+    {% if not assignments_exist_for_year %}
+
+
+    // Function to update the checkboxes based on the selected giver
+    function updateExclusionCheckboxes() {
+        const giverSelect = document.getElementById('giver-select');
+        const selectedGiverId = parseInt(giverSelect.value);
+        const excludedReceivers = currentExclusions[selectedGiverId] || [];
+        
+        // Uncheck all checkboxes first
+        const checkboxes = document.querySelectorAll('#exclusion-form input[name="excluded_receivers"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+
+        // Check the ones that are in the excluded list for the selected giver
+        excludedReceivers.forEach(receiverId => {
+            const checkbox = document.querySelector(`#exclusion-form input[name="excluded_receivers"][value="${receiverId}"]`);
+            if (checkbox) {
+                checkbox.checked = true;
+            }
+        });
+    }
+
+    // Run the function on page load to initialize the state for the default selected user
+    updateExclusionCheckboxes();
+    // Add an event listener to the giver select dropdown
+    document.getElementById('giver-select').addEventListener('change', updateExclusionCheckboxes);
+
+
+    // Admin functions for assignment exclusions
+    document.getElementById('exclusion-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const giverId = document.getElementById('giver-select').value;
+            const excludedIds = Array.from(document.querySelectorAll('#exclusion-form input[name="excluded_receivers"]:checked'))
+                .map(checkbox => checkbox.value);
+            const year = document.getElementById('assignment_year').value;
+
+            fetch('/admin/exclusions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                },
+                body: JSON.stringify({
+                    year: parseInt(year),
+                    giver_id: parseInt(giverId),
+                    excluded_receivers: excludedIds.map(id => parseInt(id))
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.detail || 'Network response was not ok');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred: ' + error.message);
+            });
+        });
+
+    // Admin functions for creating assignments
+    document.getElementById('assign-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const year = document.getElementById('assignment_year').value;
+        const participants = Array.from(document.querySelectorAll('input[name="participants"]:checked'))
+            .map(checkbox => checkbox.value);
+
+        fetch('/admin/assign', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                year: parseInt(year),
+                participants: participants
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                // Read the error message from the response body
+                return response.json().then(errorData => {
+                    throw new Error(errorData.detail || 'Network response was not ok');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred: ' + error.message);
+        });
+    });
+
     {% endif %}
+
+    {% endif %}
+
 });
 </script>
 

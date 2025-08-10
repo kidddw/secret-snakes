@@ -142,5 +142,6 @@ cython_debug/
 
 # Text Editor
 .vscode
+.vscode/
 
 *.db
