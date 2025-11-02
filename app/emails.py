@@ -18,6 +18,44 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def send_email(to_email, subject, html_body, logger_info="Email sent successfully"):
+    """Generic function to send an email using AWS SES.
+    """
+
+    try:
+        ses = boto3.client('ses', region_name=AWS_REGION)
+        response = ses.send_email(
+            Source=SES_SENDER_EMAIL,
+            Destination={'ToAddresses': [to_email]},
+            Message={
+                'Subject': {
+                    'Charset': 'UTF-8',
+                    'Data': subject
+                },
+                'Body': {
+                    'Html': {
+                        'Charset': 'UTF-8',
+                        'Data': html_body
+                    }
+                }
+            }
+        )
+        logger.info(logger_info + f"! Message ID: {response['MessageId']}")
+        return response['MessageId']
+
+    except ClientError as e:
+        error_code = e.response['Error']['Code']
+        error_message = e.response['Error']['Message']
+        logger.warning(f"Failed to send email. Error Code: {error_code}, Message: {error_message}")
+        if error_code == 'MessageRejected':
+            logger.warning("Common reasons for rejection: Recipient not verified (if in SES Sandbox), sender not verified, or content issues.")
+        return None
+
+    except Exception as e:
+        logger.warning(f"An unexpected error occurred while sending email: {e}")
+        return None
+
+
 def send_username_recovery_email(to_email: str, username: str):
     """
     Sends an email to the user with their forgotten username.
@@ -74,38 +112,9 @@ def send_username_recovery_email(to_email: str, username: str):
     </html>
     """
 
-    try:
-        ses = boto3.client('ses', region_name=AWS_REGION)
-        response = ses.send_email(
-            Source=SES_SENDER_EMAIL,
-            Destination={'ToAddresses': [to_email]},
-            Message={
-                'Subject': {
-                    'Charset': 'UTF-8',
-                    'Data': subject
-                },
-                'Body': {
-                    'Html': {
-                        'Charset': 'UTF-8',
-                        'Data': html_body
-                    }
-                }
-            }
-        )
-        logger.info(f"Username recovery email sent successfully to {to_email}! Message ID: {response['MessageId']}")
-        return response['MessageId']
+    logger_info = f"Username recovery email sent successfully to {to_email}!"
 
-    except ClientError as e:
-        error_code = e.response['Error']['Code']
-        error_message = e.response['Error']['Message']
-        logger.warning(f"Failed to send email. Error Code: {error_code}, Message: {error_message}")
-        if error_code == 'MessageRejected':
-            logger.warning("Common reasons for rejection: Recipient not verified (if in SES Sandbox), sender not verified, or content issues.")
-        return None
-
-    except Exception as e:
-        logger.warning(f"An unexpected error occurred while sending email: {e}")
-        return None
+    send_email(to_email, subject, html_body, logger_info=logger_info) 
 
 
 def send_password_reset_email(to_email: str, reset_token: str):
@@ -158,30 +167,9 @@ def send_password_reset_email(to_email: str, reset_token: str):
     </html>
     """
 
-    try:
-        ses = boto3.client('ses', region_name=AWS_REGION)
-        response = ses.send_email(
-            Source=SES_SENDER_EMAIL,
-            Destination={'ToAddresses': [to_email]},
-            Message={
-                'Subject': {'Charset': 'UTF-8', 'Data': subject},
-                'Body': {'Html': {'Charset': 'UTF-8', 'Data': html_body}}
-            }
-        )
-        logger.info(f"Password reset email sent successfully to {to_email}! Message ID: {response['MessageId']}")
-        return response['MessageId']
+    logger_info = f"Password reset email sent successfully to {to_email}!"
 
-    except ClientError as e:
-        error_code = e.response['Error']['Code']
-        error_message = e.response['Error']['Message']
-        logger.warning(f"Failed to send email. Error Code: {error_code}, Message: {error_message}")
-        if error_code == 'MessageRejected':
-            logger.warning("Common reasons for rejection: Recipient not verified (if in SES Sandbox), sender not verified, or content issues.")
-        return None
-
-    except Exception as e:
-        logger.warning(f"An unexpected error occurred while sending email: {e}")
-        return None
+    send_email(to_email, subject, html_body, logger_info=logger_info) 
 
 
 def send_assignment_email(to_email, assigned_username, shipping_info, subject="Your Secret Snakes Assignment"):
@@ -236,40 +224,7 @@ def send_assignment_email(to_email, assigned_username, shipping_info, subject="Y
     </html>
     """
 
-    try:
-
-        ses = boto3.client('ses', region_name=AWS_REGION)
-
-        response = ses.send_email(
-            Source=SES_SENDER_EMAIL,
-            Destination={'ToAddresses': [to_email]},
-            Message={
-                'Subject': {
-                    'Charset': 'UTF-8',
-                    'Data': subject
-                },
-                'Body': {
-                    'Html': {
-                        'Charset': 'UTF-8',
-                        'Data': html_body
-                    }
-                }
-            }
-        )
-        logger.info(f"Email sent successfully! Message ID: {response['MessageId']}")
-        return response['MessageId']
-
-    except ClientError as e:
-        error_code = e.response['Error']['Code']
-        error_message = e.response['Error']['Message']
-        logger.warning(f"Failed to send email. Error Code: {error_code}, Message: {error_message}")
-        if error_code == 'MessageRejected':
-            logger.warning("Common reasons for rejection: Recipient not verified (if in SES Sandbox), sender not verified, or content issues.")
-        return None
-
-    except Exception as e:
-        logger.warning(f"An unexpected error occurred while sending email: {e}")
-        return None
+    send_email(to_email, subject, html_body) 
 
 
 def send_tip_email(to_email, tip_content, subject="You received a new Snakesmas tip!"):
@@ -311,37 +266,48 @@ def send_tip_email(to_email, tip_content, subject="You received a new Snakesmas 
     </html>
     """
 
-    try:
-
-        ses = boto3.client('ses', region_name=AWS_REGION)
-        response = ses.send_email(
-            Source=SES_SENDER_EMAIL,
-            Destination={'ToAddresses': [to_email]},
-            Message={
-                'Subject': {
-                    'Charset': 'UTF-8',
-                    'Data': subject
-                },
-                'Body': {
-                    'Html': {
-                        'Charset': 'UTF-8',
-                        'Data': html_body
-                    }
-                }
-            }
-        )
-        logger.info(f"Email sent successfully! Message ID: {response['MessageId']}")
-        return response['MessageId']
-
-    except ClientError as e:
-        error_code = e.response['Error']['Code']
-        error_message = e.response['Error']['Message']
-        logger.warning(f"Failed to send email. Error Code: {error_code}, Message: {error_message}")
-        if error_code == 'MessageRejected':
-            logger.warning("Common reasons for rejection: Recipient not verified (if in SES Sandbox), sender not verified, or content issues.")
-        return None
+    send_email(to_email, subject, html_body) 
 
 
-    except Exception as e:
-        logger.warning(f"An unexpected error occurred while sending email: {e}")
-        return None
+def send_assignment_note_email(to_email, note_content, subject="You received a note from your secret snake!"):
+    """Send an email with a note to the assigned user."""
+
+    # Append [DEV] to the subject if in development environment
+    if ENV == "dev":
+        subject = f"[DEV] {subject}"
+        logger.info(f"Would send note email to: {to_email}")
+        to_email = "daniel.wayne.kidd@gmail.com"  # Override email for testing in dev
+
+    html_body = f"""
+    <html>
+    <head>
+        <style>
+            body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+            .container {{ max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }}
+            .header {{ background-color: {PRIMARY_COLOR_THREE}; color: #ffffff; padding: 10px 20px; border-radius: 8px 8px 0 0; text-align: center; }}
+            .content {{ padding: 20px; }}
+            .footer {{ text-align: center; margin-top: 30px; font-size: 0.8em; color: #777; }}
+            .tip-box {{ background-color: #ffffff; border: 1px solid #eee; padding: 15px; margin-top: 20px; text-align: center; font-size: 1.2em; font-weight: bold; border-radius: 5px; }}
+            .button {{ display: inline-block; padding: 10px 20px; margin-top: 20px; background-color: {ACCENT_COLOR_TWO}; color: white; text-decoration: none; text-color: white; border-radius: 5px; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h2>🐍 Secret Snakes Note from Your Secret Snake 🐍</h2>
+            </div>
+            <div class="content">
+                <p>You received a new note from your secret snake:</p>
+                <div class="tip-box">
+                    {note_content}
+                </div>
+            </div>
+            <div class="footer">
+                <p>Remember to keep Snakesmas shitty!</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    send_email(to_email, subject, html_body) 

@@ -48,6 +48,32 @@
                 </div>
 
             </div>
+            
+            <div class="line-padding"></div>
+            <div class="line-padding"></div>
+            
+            <div class="assignment-note-form-container">
+                <h3>Send an Anonymous Note to Your Assigned Snake</h3>
+                <p>Let them know what they should expect in the mail</p>
+                <p>Suggestion: Use a unique name for the shipping address</p>
+
+                <form id="send-note-form" class="note-form" method="post" action="/assignment/send_note">
+                    
+                    <div class="property-container">
+                        <div class="current-property-container">
+                            <div class="property-title">
+                                <strong><label for="note_content">Your Note:</label></strong>
+                            </div>
+                            <div class="property-value">
+                                <textarea id="note_content" class="tip-textarea" name="note_content" rows="3" required placeholder="Type your anonymous message here..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="text-button">Send Note</button>
+                    <div id="note-message" style="margin-top: 10px; color: green; display: none;"></div>
+                </form>
+            </div>
 
         {% else %}
 
@@ -100,4 +126,56 @@
 
 </div>
 
+{# --- New JavaScript Section for Note Submission --- #}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const noteForm = document.getElementById('send-note-form');
+    const noteMessage = document.getElementById('note-message');
+    const noteContent = document.getElementById('note_content');
+
+    if (noteForm) {
+        noteForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+
+            // Disable button and clear previous message
+            submitButton.disabled = true;
+            submitButton.textContent = 'Sending...';
+            noteMessage.style.display = 'none';
+            noteMessage.textContent = '';
+            noteMessage.style.color = 'green'; // Reset to success color
+
+            try {
+                const response = await fetch('/assignment/send_note', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    noteMessage.textContent = result.message || 'Note sent successfully!';
+                    noteMessage.style.color = 'green';
+                    // Clear the textarea after successful submission
+                    noteContent.value = ''; 
+                } else {
+                    noteMessage.textContent = result.detail || 'Failed to send note. Please try again.';
+                    noteMessage.style.color = 'red';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                noteMessage.textContent = 'An unexpected error occurred. Please check the console.';
+                noteMessage.style.color = 'red';
+            } finally {
+                // Re-enable button and display message
+                submitButton.disabled = false;
+                submitButton.textContent = 'Send Note Anonymously';
+                noteMessage.style.display = 'block';
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

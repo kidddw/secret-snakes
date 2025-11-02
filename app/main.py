@@ -754,6 +754,77 @@ async def assignment(
     return templates.TemplateResponse("assignment.html", context)
 
 
+@app.post("/assignment/send_note", response_model=dict)
+async def send_anonymous_note(
+    request: Request,
+    note_content: str = Form(...),
+    db: Session = Depends(database.get_db),
+):
+    """
+    Allows the current user (the giver) to send an anonymous note to their
+    assigned recipient (the receiver) for the current assignment year.
+    """
+    logger.info("Attempting to send anonymous assignment note.")
+
+    # Get the token from the session
+    access_token = request.session.get("access_token")
+
+    if not access_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not logged in."
+        )
+
+    # Get current user (the giver)
+    current_user = auth.get_current_user(db, access_token)
+
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication token."
+        )
+
+    # Get the latest year in the assignments table
+    latest_year = db.query(func.max(models.Assignment.year)).scalar()
+
+    # Get the current assignment year
+    assignment_year = config.get_config(db).get('assignment_year')
+    assignment_year = int(assignment_year) if assignment_year else latest_year
+
+    # Find the current user's assignment for the current year
+    assignment = db.query(models.Assignment).filter(
+        models.Assignment.assignee_user_id == current_user.id,
+        models.Assignment.year == assignment_year,
+    ).first()
+
+    if not assignment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No assignment found for the current user in the current year."
+        )
+
+    # Get the assigned user (the receiver)
+    assigned_user = db.query(models.User).filter(
+        models.User.id == assignment.assigned_user_id
+    ).first()
+
+    if not assigned_user:
+        logger.error(f"Assigned user ID {assignment.assigned_user_id} not found for assignment year {assignment_year}.")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Assigned user not found in the database."
+        )
+
+    emails.send_assignment_note_email(
+        to_email=assigned_user.email,
+        note_content=note_content,
+    )
+
+    # Use a RedirectResponse to prevent resubmission on page refresh, 
+    # but since this is an API endpoint, we'll return a JSON response.
+    return {"message": "Anonymous note sent successfully to your assigned snake!"}
+
+
 @app.get("/tips/create", response_class=HTMLResponse)
 async def create_tip_form(
     request: Request,

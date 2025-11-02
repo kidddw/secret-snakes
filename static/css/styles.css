@@ -470,6 +470,11 @@ input[type="number"] {
     min-height: auto;
 }
 
+.assignment-note-form-container {
+    flex: 1;
+    min-height: auto;
+}
+
 .assignment-tips-panel {
     flex: 1;
     min-height: auto;
