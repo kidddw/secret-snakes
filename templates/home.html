@@ -4,42 +4,134 @@
 
 {% block content %}
 
-<div class="home-container">
+{% if not user_authenticated %}
 
-    {% if not user_authenticated %}
+    <!-- ===================== Logged-out landing ===================== -->
+    <div class="landing">
 
-        <div class="login-container">
+        <section class="landing-intro">
+            <h2>Welcome to Secret Snakes 🐍</h2>
+            <p class="landing-lead">
+                Our group's private gift exchange. Each year you're secretly matched
+                with someone to surprise &mdash; and someone out there is secretly
+                shopping for you.
+            </p>
 
-            <h2>Login</h2>
+            <ol class="how-it-works">
+                <li><span class="step-num">1</span> Create an account with your shipping address.</li>
+                <li><span class="step-num">2</span> When the draw happens, find out who your Snake is.</li>
+                <li><span class="step-num">3</span> Leave anonymous tips and notes, then send your gift!</li>
+            </ol>
+        </section>
 
-            <form id="login-form">
+        <div class="home-container landing-login">
+            <div class="login-container">
+                <h2>Login</h2>
 
-                <div>
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div>
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <button type="submit" class="button">Login</button>
-            </form>
+                <form id="login-form">
+                    <div>
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div>
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="button">Login</button>
+                </form>
 
-            <h3>Don't have an account?</h3>
-            <button id="register-link" class="button">Register here</button>
+                <h3>Don't have an account?</h3>
+                <button id="register-link" class="button">Register here</button>
 
-            <p><a href="/forgot-username" class="text-button">Forgot Username?</a></p>
-            <p><a href="/forgot-password" class="text-button">Forgot Password?</a></p>
+                <p><a href="/forgot-username" class="text-button">Forgot Username?</a></p>
+                <p><a href="/forgot-password" class="text-button">Forgot Password?</a></p>
+            </div>
         </div>
 
-    {% else %}
+    </div>
 
-        <p>You are logged in. Check your assignment or add gift tips!</p>
-        <button id="logout-button" class="button">Logout</button>
+{% else %}
 
-    {% endif %}
+    <!-- ===================== Logged-in dashboard ===================== -->
+    <div class="dashboard">
 
-</div>
+        <div class="dashboard-greeting">
+            <h2>Welcome back, {{ user.first_name }}! 🐍</h2>
+            <p>Snakesmas {{ assignment_year if assignment_year else '' }}</p>
+        </div>
+
+        <section class="common-panel dashboard-status">
+            <h3>Your status</h3>
+            <div class="line"></div>
+            <div class="line-padding"></div>
+
+            {% if assigned_user %}
+                <div class="status-item">
+                    <span class="status-icon">🎁</span>
+                    <div>
+                        You're the Secret Snake for
+                        <strong>{{ assigned_user.first_name }} {{ assigned_user.last_name }}</strong>.
+                        <a href="/assignment" class="text-button">View assignment &rarr;</a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="status-item">
+                    <span class="status-icon">⏳</span>
+                    <div>Assignments haven't been drawn yet for {{ assignment_year }}. Check back soon!</div>
+                </div>
+            {% endif %}
+
+            <div class="status-item">
+                <span class="status-icon">📝</span>
+                <div>
+                    <strong>{{ tips_for_snake }}</strong> tip{{ '' if tips_for_snake == 1 else 's' }} left for your snake
+                    &middot;
+                    you've given <strong>{{ tips_given }}</strong> tip{{ '' if tips_given == 1 else 's' }}.
+                </div>
+            </div>
+
+            {% if not shipping_complete %}
+                <div class="status-item status-warning">
+                    <span class="status-icon">📦</span>
+                    <div>
+                        Your shipping address looks incomplete.
+                        <a href="/profile" class="text-button">Update it &rarr;</a>
+                    </div>
+                </div>
+            {% endif %}
+        </section>
+
+        <section class="action-grid">
+            <a href="/assignment" class="action-card">
+                <span class="action-icon">🎯</span>
+                <span class="action-title">My Assignment</span>
+                <span class="action-desc">See who you're gifting and their address</span>
+            </a>
+
+            <a href="/tips/create" class="action-card">
+                <span class="action-icon">💡</span>
+                <span class="action-title">Give a Tip</span>
+                <span class="action-desc">Leave anonymous hints for others' snakes</span>
+            </a>
+
+            <a href="/profile" class="action-card">
+                <span class="action-icon">👤</span>
+                <span class="action-title">My Profile</span>
+                <span class="action-desc">Update your email and shipping address</span>
+            </a>
+
+            {% if is_admin %}
+            <a href="/profile" class="action-card action-card-admin">
+                <span class="action-icon">🛠️</span>
+                <span class="action-title">Admin Tools</span>
+                <span class="action-desc">Draw assignments, exclusions, settings</span>
+            </a>
+            {% endif %}
+        </section>
+
+    </div>
+
+{% endif %}
 
 <script>
     {% if not user_authenticated %}
@@ -63,7 +155,7 @@
             });
 
             if (response.ok) {
-                window.location.href = '/profile';
+                window.location.href = '/';
             } else {
                 const errorData = await response.json();
                 alert('Login failed: ' + errorData.detail);
@@ -74,16 +166,16 @@
         }
     });
 
-    // New JavaScript for the register link
+    // Register link checks whether registration is currently open
     document.getElementById('register-link').addEventListener('click', async function(e) {
-        e.preventDefault(); // Prevent default link behavior
+        e.preventDefault();
 
         try {
             const response = await fetch('/check-registration-status');
             const data = await response.json();
 
             if (data.allow_registration) {
-                window.location.href = '/register'; // Proceed to registration page
+                window.location.href = '/register';
             } else {
                 alert('Registration is currently closed. Please check back later!');
             }
@@ -91,11 +183,6 @@
             console.error('Error checking registration status:', error);
             alert('An error occurred while checking registration status. Please try again.');
         }
-    });
-
-    {% else %}
-    document.getElementById('logout-button').addEventListener('click', function() {
-        window.location.href = '/logout';
     });
     {% endif %}
 </script>

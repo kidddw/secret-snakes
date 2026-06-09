@@ -92,19 +92,59 @@ async def home(
     if not current_user:
         return unauthenticated_response
 
-    # If authentication token in session and valid, display home page with user is authenticated set to true
+    # --- Authenticated: build the personalized dashboard context ---------
+
+    # Resolve the active assignment year (fall back to the latest year on record)
+    latest_year = db.query(func.max(models.Assignment.year)).scalar()
+    assignment_year = config.get_config(db).get('assignment_year')
+    assignment_year = int(assignment_year) if assignment_year else latest_year
+
+    # The user's assignment (who they are buying for) for the active year
+    assigned_user = None
+    if assignment_year:
+        assignment = db.query(models.Assignment).filter(
+            models.Assignment.assignee_user_id == current_user.id,
+            models.Assignment.year == assignment_year,
+        ).first()
+        if assignment:
+            assigned_user = db.query(models.User).filter(
+                models.User.id == assignment.assigned_user_id
+            ).first()
+
+    # Tip counts for at-a-glance status
+    tips_for_snake = tips.count_tips_for_current_assignment(
+        db, current_user.id, assignment_year) if assignment_year else 0
+    tips_given = len(tips.get_tips_for_contributor_user(
+        db, current_user.id, assignment_year)) if assignment_year else 0
+
+    # Nudge the user if their shipping address looks incomplete
+    shipping_complete = all([
+        current_user.shipping_street_address,
+        current_user.shipping_city,
+        current_user.shipping_state,
+        current_user.shipping_zipcode,
+    ])
+
     return templates.TemplateResponse(
         "home.html",
-        {"request": request, "user_authenticated": True}
+        {
+            "request": request,
+            "user_authenticated": True,
+            "user": current_user,
+            "is_admin": current_user.is_admin,
+            "assignment_year": assignment_year,
+            "assigned_user": assigned_user,
+            "tips_for_snake": tips_for_snake or 0,
+            "tips_given": tips_given,
+            "shipping_complete": shipping_complete,
+        }
     )
 
 
 @app.get("/home", response_class=HTMLResponse)
-async def home(
-    request: Request, 
-    db: Session = Depends(database.get_db)
-): 
-    return templates.TemplateResponse("home.html", {"request": request})
+async def home_redirect(request: Request):
+    # Keep a single canonical home page so authenticated state is always correct.
+    return RedirectResponse(url="/", status_code=302)
 
 
 @app.get("/check-registration-status")
@@ -230,7 +270,8 @@ async def login(
     # Store the token in the session
     request.session["access_token"] = access_token
 
-    return RedirectResponse(url="/profile", status_code=302)
+    # Land on the home dashboard after login
+    return RedirectResponse(url="/", status_code=302)
 
 
 @app.get("/forgot-username", response_class=HTMLResponse)

@@ -3,26 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1f3d2b">
     <title>{% block title %}Secret Snakes{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/styles.css">
     {% block head %}{% endblock %}
 </head>
 <body>
-    <header>
+    <header class="site-header">
         <div class="header-container">
-            <div id="branding" class="branding">
-
+            <a href="/" id="branding" class="branding">
                 <div class="image-container">
-                    <img class="image-placeholder" src="../static/assets/images/IMG-20250119-WA0003_2.png" alt="Description of the image" width="80" height="80">
+                    <img class="image-placeholder" src="/static/assets/images/IMG-20250119-WA0003_2.png" alt="Secret Snakes logo" width="80" height="80">
                 </div>
-
-                <div>
+                <div class="branding-text">
                     <h1>Secret Snakes</h1>
-                    <i>Have yourself a shitty little Snakesmas &#128276</i>
+                    <i>Have yourself a shitty little Snakesmas &#128276;</i>
                 </div>
-            </div>
-            <nav>
+            </a>
+
+            <button class="nav-toggle" aria-label="Toggle navigation" aria-controls="site-nav" aria-expanded="false">
+                <span class="nav-toggle-bar"></span>
+                <span class="nav-toggle-bar"></span>
+                <span class="nav-toggle-bar"></span>
+            </button>
+
+            <nav id="site-nav" class="site-nav">
                 <ul>
                     <li><a href="/">Home</a></li>
                     {% if user_authenticated %}
@@ -36,11 +45,36 @@
         </div>
     </header>
 
-    <div class="header-container">
+    <main class="site-main">
         {% block content %}
         {% endblock %}
-    </div>
+    </main>
 
+    <footer class="site-footer">
+        <p>🐍 Secret Snakes &middot; Keep Snakesmas shitty 🎁</p>
+    </footer>
+
+    <script>
+        // Self-contained mobile nav toggle. Collapse behaviour only activates
+        // once JS has run, so the menu stays visible if JS is disabled.
+        (function () {
+            document.documentElement.classList.add('js');
+            var toggle = document.querySelector('.nav-toggle');
+            var header = document.querySelector('.site-header');
+            if (!toggle || !header) return;
+            toggle.addEventListener('click', function () {
+                var open = header.classList.toggle('nav-open');
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+            // Close the menu after tapping a link (mobile).
+            header.querySelectorAll('.site-nav a').forEach(function (link) {
+                link.addEventListener('click', function () {
+                    header.classList.remove('nav-open');
+                    toggle.setAttribute('aria-expanded', 'false');
+                });
+            });
+        })();
+    </script>
     <script src="/static/js/main.js"></script>
 </body>
 </html>
