@@ -13,7 +13,15 @@ from app import models, schemas, database, config
 
 
 # Security configuration
-SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key')
+# SECRET_KEY signs/verifies all auth JWTs. There is deliberately no fallback:
+# a known default key would let anyone forge tokens for any user. Fail fast at
+# import time if it is not configured.
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    raise RuntimeError(
+        "SECRET_KEY environment variable is not set. Refusing to start with an "
+        "insecure default JWT signing key. Set SECRET_KEY in the environment/.env."
+    )
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES', 15))
 

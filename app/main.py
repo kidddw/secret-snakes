@@ -12,6 +12,8 @@ from sqlalchemy import desc, func
 from sqlalchemy.orm import Session, joinedload
 import logging
 
+import os
+
 from app import models, schemas, auth, database, config, snake_assignments, tips, emails
 
 
@@ -40,7 +42,17 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Session Configuration
-app.add_middleware(SessionMiddleware, secret_key="livsoig7se8igw4ivufsd89h")
+# The session cookie carries the user's access token, so its signing key must be
+# secret. Load from the environment and fail fast rather than fall back to a
+# hardcoded value that would let anyone forge sessions for any user.
+SESSION_SECRET_KEY = os.environ.get("SESSION_SECRET_KEY")
+if not SESSION_SECRET_KEY:
+    raise RuntimeError(
+        "SESSION_SECRET_KEY environment variable is not set. Refusing to start "
+        "with an insecure default session key. Set SESSION_SECRET_KEY in the "
+        "environment/.env."
+    )
+app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET_KEY)
 
 # Set up Jinja2 templates
 templates = Jinja2Templates(directory="templates")
