@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#1f3d2b">
+    <meta name="theme-color" content="#14301f">
     <title>{% block title %}Secret Snakes{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,6 +13,7 @@
     {% block head %}{% endblock %}
 </head>
 <body>
+    {% set current_path = request.url.path if request else '' %}
     <header class="site-header">
         <div class="header-container">
             <a href="/" id="branding" class="branding">
@@ -33,11 +34,11 @@
 
             <nav id="site-nav" class="site-nav">
                 <ul>
-                    <li><a href="/">Home</a></li>
+                    <li><a href="/" class="{{ 'active' if current_path == '/' else '' }}">Home</a></li>
                     {% if user_authenticated %}
-                        <li><a href="/profile">Profile</a></li>
-                        <li><a href="/assignment">Assignment</a></li>
-                        <li><a href="/tips/create">Give Tips</a></li>
+                        <li><a href="/profile" class="{{ 'active' if current_path == '/profile' else '' }}">Profile</a></li>
+                        <li><a href="/assignment" class="{{ 'active' if current_path == '/assignment' else '' }}">Assignment</a></li>
+                        <li><a href="/tips/create" class="{{ 'active' if current_path == '/tips/create' else '' }}">Give Tips</a></li>
                         <li><a href="/logout">Logout</a></li>
                     {% endif %}
                 </ul>
@@ -51,9 +52,12 @@
     </main>
 
     <footer class="site-footer">
-        <p>🐍 Secret Snakes &middot; Keep Snakesmas shitty 🎁</p>
+        <p class="footer-tagline">🐍 Secret Snakes &middot; Keep Snakesmas shitty 🎁</p>
+        <p><span id="snake-countdown" class="footer-countdown">⏳ Counting down to Snakesmas…</span></p>
+        <p class="footer-smallprint">Greyman Lives</p>
     </footer>
 
+    <script src="/static/js/main.js"></script>
     <script>
         // Self-contained mobile nav toggle. Collapse behaviour only activates
         // once JS has run, so the menu stays visible if JS is disabled.
@@ -75,6 +79,5 @@
             });
         })();
     </script>
-    <script src="/static/js/main.js"></script>
 </body>
 </html>

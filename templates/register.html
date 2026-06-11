@@ -4,9 +4,10 @@
 
 {% block content %}
 <div class="form-container">
-    <h2>Register for Secret Snakes</h2>
+    <h2>Join up. Or Don't! Why should I care? 🐍</h2>
+    <p>Register for Secret Snakes. We need your shipping address so your snake's gift can find you.</p>
 
-    <div id="error-message" style="color: red;"></div>
+    <div id="error-message" class="form-msg error"></div>
 
     <form id="register-form" class="general-form" action="/register" method="post">
 
@@ -122,11 +123,11 @@
                 window.location.href = '/';
             } else {
                 const errorData = await response.json();
-                alert('Login failed: ' + errorData.detail);
+                errorMessageDiv.textContent = 'Registration failed: ' + (errorData.detail || 'Please try again.');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred. Please try again.');
+            errorMessageDiv.textContent = 'An error occurred. Please try again.';
         }
     });
     {% else %}

@@ -8,9 +8,11 @@
 
     <div class="assignment-left-panel common-panel">
 
-        <h2>Assignment for {{ assignment_year }}</h2>
-        <div class="line"></div>
-        <div class="line-padding"></div>
+        <div class="panel-head">
+            <span class="panel-icon">🎯</span>
+            <h2>Assignment for {{ assignment_year }}</h2>
+        </div>
+        <div class="line line-padding"></div>
 
         {% if assignment %}
 
@@ -19,11 +21,12 @@
                 <div class="current-property-container">
 
                     <div class="property-title">
-                        <strong>You are assigned to</strong>
+                        <strong>Here it is. Don't mess it up.</strong>
                     </div>
 
                     <div class="property-value">
-                        {{ assigned_user.username }}
+                        You are the Secret Snake for <strong>{{ assigned_user.first_name }} {{ assigned_user.last_name }}</strong>
+                        <em>({{ assigned_user.username }})</em>
                     </div>
 
                 </div>
@@ -34,7 +37,7 @@
                         <strong>Shipping Address</strong>
                     </div>
 
-                    <div class="property-value">
+                    <div class="property-value address-card">
                         <address>
                             {{ assigned_user.first_name }} {{ assigned_user.last_name }}<br>
                             {{ assigned_user.shipping_street_address }}
@@ -48,36 +51,39 @@
                 </div>
 
             </div>
-            
+
             <div class="line-padding"></div>
             <div class="line-padding"></div>
-            
+
             <div class="assignment-note-form-container">
-                <h3>Send an Anonymous Note to Your Assigned Snake</h3>
-                <p>Let them know what they should expect in the mail</p>
-                <p>Suggestion: Use a unique name for the shipping address</p>
+                <h3>Send an Anonymous Note</h3>
+                <p>Let your snake know what to expect in the mail</p>
+                <p><em>Include a tracking number? Keep in mind that a return address will probably give you away...</em></p>
 
                 <form id="send-note-form" class="note-form" method="post" action="/assignment/send_note">
-                    
+
                     <div class="property-container">
                         <div class="current-property-container">
                             <div class="property-title">
-                                <strong><label for="note_content">Your Note:</label></strong>
+                                <strong><label for="note_content">Your Note</label></strong>
                             </div>
                             <div class="property-value">
-                                <textarea id="note_content" class="tip-textarea" name="note_content" rows="3" required placeholder="Type your anonymous message here..."></textarea>
+                                <textarea id="note_content" class="tip-textarea" name="note_content" rows="3" required placeholder="Meemawsaurus... Papasaurus..."></textarea>
                             </div>
                         </div>
                     </div>
-                    
-                    <button type="submit" class="text-button">Send Note</button>
-                    <div id="note-message" style="margin-top: 10px; color: green; display: none;"></div>
+
+                    <button type="submit" class="text-button">Send Note Anonymously</button>
+                    <div id="note-message" class="form-msg" hidden></div>
                 </form>
             </div>
 
         {% else %}
 
-            <p>You do not have an assignment yet.</p>
+            <div class="empty-state">
+                <span class="empty-emoji">🥚</span>
+                <p>No assignment yet &mdash; the snake pit is still shuffling. Check back after the draw!</p>
+            </div>
 
         {% endif %}
 
@@ -85,9 +91,11 @@
 
     <div class="assignment-tips-panel common-panel">
 
-        <h2>Tips Left for Your Snake</h2>
-        <div class="line"></div>
-        <div class="line-padding"></div>
+        <div class="panel-head">
+            <span class="panel-icon">💡</span>
+            <h2>Tips for Your Snake</h2>
+        </div>
+        <div class="line line-padding"></div>
 
         {% if assignment %}
 
@@ -114,7 +122,10 @@
 
                 {% else %}
 
-                    <p>No tips have been left for this user yet.</p>
+                    <div class="empty-state">
+                        <span class="empty-emoji">🤫</span>
+                        <p>No tips yet. You're alone out there&hellip;</p>
+                    </div>
 
                 {% endif %}
 
@@ -126,7 +137,6 @@
 
 </div>
 
-{# --- New JavaScript Section for Note Submission --- #}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const noteForm = document.getElementById('send-note-form');
@@ -136,16 +146,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (noteForm) {
         noteForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             const formData = new FormData(this);
             const submitButton = this.querySelector('button[type="submit"]');
 
             // Disable button and clear previous message
             submitButton.disabled = true;
             submitButton.textContent = 'Sending...';
-            noteMessage.style.display = 'none';
+            noteMessage.hidden = true;
             noteMessage.textContent = '';
-            noteMessage.style.color = 'green'; // Reset to success color
+            noteMessage.classList.remove('success', 'error');
 
             try {
                 const response = await fetch('/assignment/send_note', {
@@ -157,22 +167,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (response.ok) {
                     noteMessage.textContent = result.message || 'Note sent successfully!';
-                    noteMessage.style.color = 'green';
+                    noteMessage.classList.add('success');
+                    snakeToast('Anonymous note sent. Sssneaky. 🤫');
                     // Clear the textarea after successful submission
-                    noteContent.value = ''; 
+                    noteContent.value = '';
                 } else {
                     noteMessage.textContent = result.detail || 'Failed to send note. Please try again.';
-                    noteMessage.style.color = 'red';
+                    noteMessage.classList.add('error');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                noteMessage.textContent = 'An unexpected error occurred. Please check the console.';
-                noteMessage.style.color = 'red';
+                noteMessage.textContent = 'An unexpected error occurred. Please try again.';
+                noteMessage.classList.add('error');
             } finally {
                 // Re-enable button and display message
                 submitButton.disabled = false;
                 submitButton.textContent = 'Send Note Anonymously';
-                noteMessage.style.display = 'block';
+                noteMessage.hidden = false;
             }
         });
     }

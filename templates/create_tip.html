@@ -8,11 +8,14 @@
 
     <div class="tip-form-container common-panel">
 
-        <h2>Leave an Anonymous Tip</h2>
-        <div class="line"></div>
-        <div class="line-padding"></div>
+        <div class="panel-head">
+            <span class="panel-icon">💡</span>
+            <h2>Leave an Anonymous Tip</h2>
+        </div>
+        <div class="line line-padding"></div>
 
-        <p>This will send a notification to the SNAKE that is <u>assigned</u> to this person.</p>
+        <p>Know what someone's wishing for? Whisper it into the aether &mdash;
+        the snake <u>assigned</u> to that person gets notified. They'll never know it was you.</p>
 
         {% if error %}
 
@@ -28,7 +31,7 @@
                 <div class="current-property-container">
 
                     <div class="property-title">
-                        <strong><label for="subject_user_id">Select SNAKE you have a tip for:</label></strong>
+                        <strong><label for="subject_user_id">Who is this tip about?</label></strong>
                     </div>
 
                     <div class="property-value">
@@ -53,12 +56,12 @@
                 <div class="current-property-container">
 
                     <div class="property-title">
-                        <strong><label for="content">Tip:</label></strong>
+                        <strong><label for="content">Your Tip</label></strong>
                     </div>
 
                     <div class="property-value">
 
-                        <textarea id="content" class="tip-textarea" name="content" rows="4" cols="50" required></textarea>
+                        <textarea id="content" class="tip-textarea" name="content" rows="4" cols="50" required placeholder="e.g. Col would really like a Cthulhu mug..."></textarea>
 
                     </div>
 
@@ -77,9 +80,11 @@
 
     <div class="past-tips-container common-panel">
 
-        <h2>Your Tips Given for {{ year }}</h2>
-        <div class="line"></div>
-        <div class="line-padding"></div>
+        <div class="panel-head">
+            <span class="panel-icon">📜</span>
+            <h2>Your Tips for {{ year }}</h2>
+        </div>
+        <div class="line line-padding"></div>
 
         <div class="assignment-tips-container">
 
@@ -113,7 +118,10 @@
 
             {% else %}
 
-                <p>You have not given any tips</p>
+                <div class="empty-state">
+                    <span class="empty-emoji">🐍</span>
+                    <p>You haven't dropped any tips yet. Doing your part to keep Snakesmas shitty.</p>
+                </div>
 
             {% endif %}
 
@@ -125,8 +133,10 @@
     <div id="delete-confirmation-modal" class="modal">
         <div class="modal-content">
             <p><strong>Are you sure you want to delete this tip?</strong></p>
-            <button id="confirm-delete" class="text-button">Yes, Delete</button>
-            <button id="cancel-delete" class="text-button">Cancel</button>
+            <div class="modal-actions">
+                <button id="confirm-delete" class="text-button">Yes, Delete</button>
+                <button id="cancel-delete" class="text-button">Cancel</button>
+            </div>
         </div>
     </div>
 
@@ -135,8 +145,10 @@
         <div class="modal-content">
             <label for="update-tip-content"><strong>Edit Tip:</strong></label>
             <textarea id="update-tip-content" class="tip-textarea" rows="4" cols="50"></textarea>
-            <button id="confirm-update" class="text-button">Update</button>
-            <button id="cancel-update" class="text-button">Cancel</button>
+            <div class="modal-actions">
+                <button id="confirm-update" class="text-button">Update</button>
+                <button id="cancel-update" class="text-button">Cancel</button>
+            </div>
         </div>
     </div>
 </div>
@@ -160,11 +172,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (response.ok) {
                 window.location.reload();
             } else {
-                alert('Failed to create tip. Please try again.');
+                snakeToast('Failed to create tip. Please try again.', { type: 'error' });
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred. Please try again.');
+            snakeToast('An error occurred. Please try again.', { type: 'error' });
         }
     });
 
@@ -191,11 +203,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     deleteConfirmationModal.style.display = 'none';
                     window.location.reload();
                 } else {
-                    alert('Failed to delete tip. Please try again.');
+                    snakeToast('Failed to delete tip. Please try again.', { type: 'error' });
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('An error occurred while deleting the tip.');
+                snakeToast('An error occurred while deleting the tip.', { type: 'error' });
             }
             tipToDeleteId = null;
         }
@@ -231,11 +243,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     updateTipModal.style.display = 'none';
                     window.location.reload();
                 } else {
-                    alert('Failed to update tip. Please try again.');
+                    snakeToast('Failed to update tip. Please try again.', { type: 'error' });
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('An error occurred while updating the tip.');
+                snakeToast('An error occurred while updating the tip.', { type: 'error' });
             }
             tipToUpdateId = null;
         }

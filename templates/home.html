@@ -10,17 +10,27 @@
     <div class="landing">
 
         <section class="landing-intro">
-            <h2>Welcome to Secret Snakes 🐍</h2>
+            <span class="hero-badge">🎄 Anonymous · Festive · Mildly alcoholic</span>
+            <h2>Welcome to Secret Snakes <span class="hero-snake">🐍</span></h2>
             <p class="landing-lead">
                 Our group's private gift exchange. Each year you're secretly matched
-                with someone to surprise &mdash; and someone out there is secretly
-                shopping for you.
+                with someone to disappoint &mdash; and somewhere out there, a snake
+                is about to ship your gift to Cole without telling him.
             </p>
 
             <ol class="how-it-works">
-                <li><span class="step-num">1</span> Create an account with your shipping address.</li>
-                <li><span class="step-num">2</span> When the draw happens, find out who your Snake is.</li>
-                <li><span class="step-num">3</span> Leave anonymous tips and notes, then send your gift!</li>
+                <li>
+                    <span class="step-num">1</span>
+                    <span class="step-text"><strong>Log in</strong> Create an account with your shipping address.</span>
+                </li>
+                <li>
+                    <span class="step-num">2</span>
+                    <span class="step-text"><strong>Get matched</strong> When the draw happens, find out whose Snake you are.</span>
+                </li>
+                <li>
+                    <span class="step-num">3</span>
+                    <span class="step-text"><strong>Be a part of the greater good</strong> Leave anonymous tips and notes, then send your gift.</span>
+                </li>
             </ol>
         </section>
 
@@ -30,17 +40,18 @@
 
                 <form id="login-form">
                     <div>
-                        <label for="username">Username:</label>
-                        <input type="text" id="username" name="username" required>
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" autocomplete="username" required>
                     </div>
                     <div>
-                        <label for="password">Password:</label>
-                        <input type="password" id="password" name="password" required>
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" autocomplete="current-password" required>
                     </div>
-                    <button type="submit" class="button">Login</button>
+                    <div id="login-error" class="form-msg error" hidden></div>
+                    <button type="submit" class="button">Log in 🐍</button>
                 </form>
 
-                <h3>Don't have an account?</h3>
+                <h3>New to the joy of Snakesmas?</h3>
                 <button id="register-link" class="button">Register here</button>
 
                 <p><a href="/forgot-username" class="text-button">Forgot Username?</a></p>
@@ -57,13 +68,30 @@
 
         <div class="dashboard-greeting">
             <h2>Welcome back, {{ user.first_name }}! 🐍</h2>
-            <p>Snakesmas {{ assignment_year if assignment_year else '' }}</p>
+            {% if assignment_year %}<span class="badge">🎄 Snakesmas {{ assignment_year }}</span>{% endif %}
         </div>
 
+        <section class="stat-row">
+            <div class="stat-chip">
+                <span class="stat-num">{{ tips_for_snake }}</span>
+                <span class="stat-label">Tip{{ '' if tips_for_snake == 1 else 's' }} for your snake</span>
+            </div>
+            <div class="stat-chip">
+                <span class="stat-num">{{ tips_given }}</span>
+                <span class="stat-label">Tip{{ '' if tips_given == 1 else 's' }} you've given</span>
+            </div>
+            <div class="stat-chip">
+                <span class="stat-num">{{ '🎁' if assigned_user else '⏳' }}</span>
+                <span class="stat-label">{{ 'Assignment ready' if assigned_user else 'Awaiting the draw' }}</span>
+            </div>
+        </section>
+
         <section class="common-panel dashboard-status">
-            <h3>Your status</h3>
-            <div class="line"></div>
-            <div class="line-padding"></div>
+            <div class="panel-head">
+                <span class="panel-icon">📋</span>
+                <h2>Your status</h2>
+            </div>
+            <div class="line line-padding"></div>
 
             {% if assigned_user %}
                 <div class="status-item">
@@ -77,7 +105,7 @@
             {% else %}
                 <div class="status-item">
                     <span class="status-icon">⏳</span>
-                    <div>Assignments haven't been drawn yet for {{ assignment_year }}. Check back soon!</div>
+                    <div>Assignments haven't been drawn yet for {{ assignment_year }}. The snake pit is still shuffling — check back soon!</div>
                 </div>
             {% endif %}
 
@@ -94,7 +122,7 @@
                 <div class="status-item status-warning">
                     <span class="status-icon">📦</span>
                     <div>
-                        Your shipping address looks incomplete.
+                        Your shipping address looks incomplete &mdash; your secret snake won't know where to send it. Maybe that's a good thing.
                         <a href="/profile" class="text-button">Update it &rarr;</a>
                     </div>
                 </div>
@@ -140,6 +168,9 @@
 
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
+        const errorBox = document.getElementById('login-error');
+        errorBox.hidden = true;
+
         const formData = new URLSearchParams();
         formData.append('username', username);
         formData.append('password', password);
@@ -158,11 +189,13 @@
                 window.location.href = '/';
             } else {
                 const errorData = await response.json();
-                alert('Login failed: ' + errorData.detail);
+                errorBox.textContent = errorData.detail || 'Login failed. Please try again.';
+                errorBox.hidden = false;
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred. Please try again.');
+            errorBox.textContent = 'An error occurred. Please try again.';
+            errorBox.hidden = false;
         }
     });
 
@@ -177,11 +210,11 @@
             if (data.allow_registration) {
                 window.location.href = '/register';
             } else {
-                alert('Registration is currently closed. Please check back later!');
+                snakeToast('Registration is currently closed. Please check back later!', { type: 'error' });
             }
         } catch (error) {
             console.error('Error checking registration status:', error);
-            alert('An error occurred while checking registration status. Please try again.');
+            snakeToast('Could not check registration status. Please try again.', { type: 'error' });
         }
     });
     {% endif %}

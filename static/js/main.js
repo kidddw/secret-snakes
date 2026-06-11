@@ -1,86 +1,62 @@
-// document.addEventListener('DOMContentLoaded', (event) => {
-//     // // Login form submission
-//     // const loginForm = document.getElementById('login-form');
-//     // if (loginForm) {
-//     //     loginForm.addEventListener('submit', async (e) => {
-//     //         e.preventDefault();
-//     //         const username = document.getElementById('username').value;
-//     //         const password = document.getElementById('password').value;
-//     //
-//     //         try {
-//     //             const response = await fetch('/token', {
-//     //                 method: 'POST',
-//     //                 headers: {
-//     //                     'Content-Type': 'application/x-www-form-urlencoded',
-//     //                 },
-//     //                 body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`,
-//     //             });
-//     //
-//     //             if (response.ok) {
-//     //                 const data = await response.json();
-//     //                 localStorage.setItem('token', data.access_token);
-//     //                 window.location.href = '/profile';
-//     //             } else {
-//     //                 alert('Login failed. Please check your credentials.');
-//     //             }
-//     //         } catch (error) {
-//     //             console.error('Error:', error);
-//     //         }
-//     //     });
-//     // }
-//
-//     // Fetch and display assignment
-//     const assignmentContainer = document.getElementById('assignment-container');
-//     if (assignmentContainer) {
-//         fetchAssignment();
-//     }
-//
-//     // Fetch and display tips
-//     const tipsContainer = document.getElementById('tips-container');
-//     if (tipsContainer) {
-//         fetchTips();
-//     }
-// });
-//
-// async function fetchAssignment() {
-//     try {
-//         const response = await fetch('/users/assignment', {
-//             headers: {
-//                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
-//             },
-//         });
-//
-//         if (response.ok) {
-//             const assignment = await response.json();
-//             document.getElementById('assignment-container').innerHTML = `
-//                 <p>You are assigned to buy a gift for: ${assignment.assigned_user_id}</p>
-//             `;
-//         } else {
-//             document.getElementById('assignment-container').innerHTML = '<p>No assignment found.</p>';
-//         }
-//     } catch (error) {
-//         console.error('Error:', error);
-//     }
-// }
-//
-// async function fetchTips() {
-//     try {
-//         const response = await fetch('/tips/me', {
-//             headers: {
-//                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
-//             },
-//         });
-//
-//         if (response.ok) {
-//             const tips = await response.json();
-//             const tipsHtml = tips.map(tip => `<li>${tip.content}</li>`).join('');
-//             document.getElementById('tips-container').innerHTML = `
-//                 <ul>${tipsHtml}</ul>
-//             `;
-//         } else {
-//             document.getElementById('tips-container').innerHTML = '<p>No tips found.</p>';
-//         }
-//     } catch (error) {
-//         console.error('Error:', error);
-//     }
-// }
+/* Secret Snakes — shared front-end helpers.
+   Loaded on every page via base.html. No dependencies. */
+
+(function () {
+    'use strict';
+
+    /* ---------- Toast notifications (replacement for alert()) ----------- */
+
+    function toastRegion() {
+        var region = document.querySelector('.toast-region');
+        if (!region) {
+            region = document.createElement('div');
+            region.className = 'toast-region';
+            region.setAttribute('aria-live', 'polite');
+            document.body.appendChild(region);
+        }
+        return region;
+    }
+
+    /**
+     * Show a toast. snakeToast('Saved!') or snakeToast('Nope', { type: 'error' }).
+     * Returns the toast element in case the caller wants it.
+     */
+    window.snakeToast = function (message, opts) {
+        opts = opts || {};
+        var toast = document.createElement('div');
+        toast.className = 'toast' + (opts.type === 'error' ? ' toast-error' : '');
+        toast.setAttribute('role', 'status');
+        toast.textContent = (opts.type === 'error' ? '🙈 ' : '🐍 ') + message;
+        toastRegion().appendChild(toast);
+
+        var lifetime = opts.duration || 4000;
+        setTimeout(function () {
+            toast.classList.add('toast-out');
+            setTimeout(function () { toast.remove(); }, 350);
+        }, lifetime);
+        return toast;
+    };
+
+    /* ---------- Modals: click the dark backdrop to close ---------------- */
+
+    document.addEventListener('click', function (e) {
+        if (e.target.classList && e.target.classList.contains('modal')) {
+            e.target.style.display = 'none';
+        }
+    });
+
+    /* ---------- Snakesmas countdown (footer) ----------------------------- */
+
+    var countdown = document.getElementById('snake-countdown');
+    if (countdown) {
+        var now = new Date();
+        var snakesmas = new Date(now.getFullYear(), 11, 25);
+        if (now > snakesmas) {
+            snakesmas = new Date(now.getFullYear() + 1, 11, 25);
+        }
+        var days = Math.ceil((snakesmas - now) / 86400000);
+        countdown.textContent = days === 0
+            ? "It's Snakesmas! Go shake your presents 🎁"
+            : days + ' day' + (days === 1 ? '' : 's') + ' until Snakesmas';
+    }
+})();
