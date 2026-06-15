@@ -1,28 +1,54 @@
-fastapi==0.99.1
-fastapi_mail
-python-multipart==0.0.5
-requests==2.31.0
-requests-file==1.5.1
-requests-oauthlib==1.3.1
-requests-toolbelt==1.0.0
-Jinja2==3.1.3
-starlette
-starlette-context
-itsdangerous
+# =========================================================================
+# Secret Snakes — Python dependencies
+#
+# Pinned for security: floors reflect the minimum patched versions per the
+# advisory database (pip-audit). The web framework is held to the last
+# FastAPI line that still supports Pydantic v1 (0.125.x); FastAPI >=0.126
+# requires Pydantic v2, which this app does not use.
+# =========================================================================
+
+# --- Web framework (Pydantic v1 stack) -----------------------------------
+fastapi>=0.125.0,<0.126.0      # 0.126+ drops Pydantic v1; PYSEC-2024-38 fixed in 0.109.1
+starlette>=0.50.0,<1.0         # CVE-2024-47874 / CVE-2025-54121; <1.0 required by fastapi-mail
+starlette-context>=0.4.0
+uvicorn>=0.49.0
+python-multipart>=0.0.32       # CVE-2024-53981 and later multipart DoS fixes
+
+# --- Templating / sessions -----------------------------------------------
+Jinja2>=3.1.6,<4.0             # CVE-2025-27516 and earlier sandbox/template fixes
+itsdangerous>=2.2.0
 aiofiles==0.6.0
-uvicorn==0.19.0
-SQLAlchemy==1.4.51
-pydantic-collections==0.5.1
-pydantic>=1.9.0,<2.0.0
+
+# --- Data / validation ---------------------------------------------------
+pydantic>=1.10.26,<2.0.0
 pydantic[email]
-passlib
-passlib[bycrypt]
-bcrypt==4.0.1
-bcrypt
+pydantic-collections>=0.5.1
+email_validator<2.0            # fastapi-mail caps this at <2.0
+SQLAlchemy==1.4.51
+
+# --- Auth / crypto -------------------------------------------------------
+passlib[bcrypt]
+bcrypt==4.0.1                  # 4.0.x stays compatible with passlib 1.7.4
 python-jose[cryptography]
-pytest
+cryptography>=46.0.7           # CVE-2026-26007 and related
+ecdsa>=0.19.2                  # CVE-2026-33936 (CVE-2024-23342 has no upstream fix)
+pyasn1>=0.6.3                  # CVE-2026-23490 / CVE-2026-30922
+
+# --- HTTP clients --------------------------------------------------------
+requests>=2.34.2              # CVE-2024-47081 / CVE-2026-25645
+requests-file>=1.5.1
+requests-oauthlib>=1.3.1
+requests-toolbelt>=1.0.0
 httpx
-python-multipart
-# python-email-validator
-email_validator
+urllib3>=2.6.3                # CVE-2025-50181/50182 and later
+idna>=3.15                    # CVE-2026-45409
+certifi>=2026.5.20
+
+# --- Mail ----------------------------------------------------------------
+fastapi-mail==1.3.1           # last release on the Pydantic v1 line
+
+# --- AWS -----------------------------------------------------------------
 boto3
+
+# --- Test ----------------------------------------------------------------
+pytest>=9.0.3                 # CVE-2025-71176

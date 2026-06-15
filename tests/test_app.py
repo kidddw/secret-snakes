@@ -42,12 +42,11 @@ client = TestClient(app)
 def test_create_user():
     """Test the register user functionality."""
 
-    # Send a test post through
+    # /register consumes form-encoded data and, on success, redirects to "/".
     response = client.post(
         "/register",
-        json={
+        data={
             "username": "testuser",
-            "is_admin": False,
             "email": "test@example.com",
             "password": "testpassword",
             "first_name": "test",
@@ -56,17 +55,22 @@ def test_create_user():
             "shipping_city": "test_city",
             "shipping_zipcode": "37032",
             "shipping_state": "TN"
-        }
+        },
+        follow_redirects=False,
     )
 
-    # Make sure we got a healthy response
-    assert response.status_code == 200
+    # A successful registration redirects to the home page.
+    assert response.status_code == 302
+    assert response.headers["location"] == "/"
 
-    # Check the response data
-    data = response.json()
-    assert data["username"] == "testuser"
-    assert data["email"] == "test@example.com"
-    assert "id" in data
+    # Confirm the user was actually persisted.
+    db = TestingSessionLocal()
+    try:
+        user = db.query(models.User).filter(models.User.username == "testuser").first()
+        assert user is not None
+        assert user.email == "test@example.com"
+    finally:
+        db.close()
 
 
 def test_create_user_duplicate_username():
@@ -78,7 +82,7 @@ def test_create_user_duplicate_username():
     # Send a test post through
     response = client.post(
         "/register",
-        json={
+        data={
             "username": "testuser",
             "email": "another@example.com",
             "password": "testpassword",
@@ -88,7 +92,8 @@ def test_create_user_duplicate_username():
             "shipping_city": "test_city2",
             "shipping_zipcode": "37032",
             "shipping_state": "TN"
-        }
+        },
+        follow_redirects=False,
     )
 
     # Make sure we got an exception
