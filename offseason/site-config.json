@@ -1,0 +1,9 @@
+{
+  "_comment": "Fill the FILL_ME_* values after the one-time setup in SETUP.md. None of these are secrets.",
+  "InstanceId": "i-095bd5e15981b7b42",
+  "Region": "us-east-2",
+  "Domain": "secretsnakes.com",
+  "HostedZoneId": "FILL_ME_AFTER_ROUTE53_SETUP",
+  "ElasticIp": "FILL_ME_AFTER_EIP_ALLOCATION",
+  "CloudFrontDomain": "FILL_ME_AFTER_CLOUDFRONT_SETUP"
+}

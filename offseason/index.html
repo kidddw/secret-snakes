@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Secret Snakes — Hibernating</title>
+  <style>
+    :root {
+      --green-950: #0c2014;
+      --green-900: #14301f;
+      --green-600: #2f5d3a;
+      --green-400: #58996a;
+      --gold-500: #d4a437;
+      --gold-300: #e9c25d;
+      --gold-100: #faf0d8;
+      --cream-50: #faf7f1;
+      --cream-200: #e7dfd0;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--cream-50);
+      background-color: var(--green-950);
+      background-image:
+        radial-gradient(120% 80% at 50% -10%, #1d402b 0%, #102818 50%, #0c2014 100%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='9' viewBox='0 0 24 9'%3E%3Cpath d='M0 4.5 Q6 -0.5 12 4.5 T24 4.5' fill='none' stroke='%233c7a4a' stroke-width='1.6' stroke-linecap='round' opacity='0.18'/%3E%3C/svg%3E");
+      background-attachment: fixed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      min-height: 100%;
+    }
+    .card {
+      width: 100%;
+      max-width: 540px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(233, 194, 93, 0.25);
+      border-radius: 20px;
+      padding: 48px 32px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(2px);
+    }
+    .emoji { font-size: 64px; line-height: 1; margin-bottom: 8px; }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: clamp(28px, 6vw, 40px);
+      color: var(--gold-300);
+      letter-spacing: 0.3px;
+    }
+    .tagline { margin: 0 0 24px; color: var(--green-400); font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-size: 13px; }
+    p { margin: 0 auto; max-width: 42ch; line-height: 1.6; color: var(--cream-200); font-size: 17px; }
+    .divider {
+      width: 120px; height: 9px; margin: 28px auto;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='9' viewBox='0 0 24 9'%3E%3Cpath d='M0 4.5 Q6 -0.5 12 4.5 T24 4.5' fill='none' stroke='%23d4a437' stroke-width='1.6' stroke-linecap='round' opacity='0.8'/%3E%3C/svg%3E") repeat-x left center;
+    }
+    .footer { margin-top: 28px; font-size: 13px; color: var(--green-400); }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="emoji">🐍&#xFE0E; 😴</div>
+    <p class="tagline">Off-season</p>
+    <h1>Secret Snakes is hibernating</h1>
+    <div class="divider"></div>
+    <p>
+      Our holiday gift exchange is curled up and resting for the off-season.
+      We'll slither back when the season returns — check in around
+      <strong>November</strong> to set up your next round of Secret Snakes.
+    </p>
+    <p class="footer">🎁 See you soon. — The Secret Snakes den</p>
+  </main>
+</body>
+</html>
