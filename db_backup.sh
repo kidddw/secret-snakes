@@ -25,9 +25,11 @@ BACKUP_DIR="${BACKUP_DIR:-/home/ec2-user/backups}"
 S3_BUCKET="${S3_BUCKET:-secret-snakes}"
 S3_PREFIX="${S3_PREFIX:-database-backup}"
 
-# Delete local snapshots older than this many days (S3 retention is handled
-# separately by an S3 lifecycle rule). Set to 0 to keep everything locally.
-RETENTION_DAYS="${RETENTION_DAYS:-14}"
+# Local snapshots are TRANSIENT. Each run stages the snapshot in BACKUP_DIR only
+# long enough to compress and upload it, then deletes it (see the EXIT trap
+# below). Nothing is retained on the host; backups live in S3. Set KEEP_LOCAL=1
+# only when debugging a single run.
+KEEP_LOCAL="${KEEP_LOCAL:-0}"
 
 # --- Helpers -----------------------------------------------------------------
 
@@ -65,6 +67,17 @@ mkdir -p "$BACKUP_DIR"
 # silently overwrite the first.
 TIMESTAMP="$(date +%Y-%m-%d_%H%M%S)"
 BACKUP_FILE="$BACKUP_DIR/backup-$TIMESTAMP.db"
+GZ_FILE="$BACKUP_FILE.gz"
+
+# The staged snapshot is temporary. Remove it whenever the script exits, on
+# success OR failure, so nothing accumulates on the host (backups live in S3).
+# An aborted run that left a half-written .db/.db.gz behind is cleaned up too.
+cleanup() {
+    if [ "$KEEP_LOCAL" != "1" ]; then
+        rm -f "$BACKUP_FILE" "$GZ_FILE" 2>/dev/null || true
+    fi
+}
+trap 'cleanup' EXIT
 
 # Use SQLite's online .backup (safe on a live database, unlike a raw file copy).
 sqlite3 "$DB_FILE" ".backup '$BACKUP_FILE'" \
@@ -74,7 +87,6 @@ sqlite3 "$DB_FILE" ".backup '$BACKUP_FILE'" \
 [ -s "$BACKUP_FILE" ] || die "backup file is empty: $BACKUP_FILE"
 
 gzip -f "$BACKUP_FILE" || die "gzip failed for $BACKUP_FILE"
-GZ_FILE="$BACKUP_FILE.gz"
 [ -s "$GZ_FILE" ] || die "compressed backup is empty: $GZ_FILE"
 
 # --- Upload ------------------------------------------------------------------
@@ -82,12 +94,7 @@ GZ_FILE="$BACKUP_FILE.gz"
 S3_URI="s3://$S3_BUCKET/$S3_PREFIX/$(basename "$GZ_FILE")"
 aws s3 cp "$GZ_FILE" "$S3_URI" || die "upload to $S3_URI failed"
 
-# --- Local retention ---------------------------------------------------------
-
-if [ "$RETENTION_DAYS" -gt 0 ]; then
-    find "$BACKUP_DIR" -name 'backup-*.db.gz' -type f -mtime "+$RETENTION_DAYS" -delete \
-        || echo "WARNING: failed to prune old local backups (continuing)" >&2
-fi
-
-# Only reached if every step above succeeded.
+# --- Cleanup -----------------------------------------------------------------
+# The staged local snapshot is deleted by the EXIT trap (cleanup) defined above,
+# so no copies accumulate on the host. Only reached if every step succeeded.
 echo "Database backup created and uploaded successfully: $S3_URI"
