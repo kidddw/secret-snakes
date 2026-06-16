@@ -29,10 +29,9 @@ SQLAlchemy==1.4.51
 # --- Auth / crypto -------------------------------------------------------
 passlib[bcrypt]
 bcrypt==4.0.1                  # 4.0.x stays compatible with passlib 1.7.4
-python-jose[cryptography]
+PyJWT>=2.10.1                  # replaces python-jose; app uses HS256 only and PyJWT
+                               # does not pull in ecdsa (avoids unfixable CVE-2024-23342)
 cryptography>=46.0.7           # CVE-2026-26007 and related
-ecdsa>=0.19.2                  # CVE-2026-33936 (CVE-2024-23342 has no upstream fix)
-pyasn1>=0.6.3                  # CVE-2026-23490 / CVE-2026-30922
 
 # --- HTTP clients --------------------------------------------------------
 requests>=2.34.2              # CVE-2024-47081 / CVE-2026-25645

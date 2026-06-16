@@ -3,7 +3,8 @@ import uuid
 import datetime
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt, ExpiredSignatureError
+import jwt
+from jwt import ExpiredSignatureError, InvalidTokenError
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from pydantic import ValidationError
@@ -182,12 +183,12 @@ def get_current_user(db: Session = Depends(database.get_db), token: str = Depend
         if username is None:
             raise credentials_exception
 
-    except (JWTError, ValidationError):
-        logger.warning("Could not validate credentials")
-        return None
-
     except ExpiredSignatureError:
         logger.warning("Token expired.")
+        return None
+
+    except (InvalidTokenError, ValidationError):
+        logger.warning("Could not validate credentials")
         return None
 
     # Query for this username in the users table
@@ -218,12 +219,12 @@ def get_user_for_reset(db: Session = Depends(database.get_db), token: str = Depe
         # Create TokenData class instance
         token_data = schemas.TokenData(username=username)
 
-    except (JWTError, ValidationError):
-        logger.warning("Could not validate credentials")
-        return None
-
     except ExpiredSignatureError:
         logger.warning("Token expired.")
+        return None
+
+    except (InvalidTokenError, ValidationError):
+        logger.warning("Could not validate credentials")
         return None
 
     # Query for this username in the users table
