@@ -58,6 +58,24 @@
       background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='9' viewBox='0 0 24 9'%3E%3Cpath d='M0 4.5 Q6 -0.5 12 4.5 T24 4.5' fill='none' stroke='%23d4a437' stroke-width='1.6' stroke-linecap='round' opacity='0.8'/%3E%3C/svg%3E") repeat-x left center;
     }
     .footer { margin-top: 28px; font-size: 13px; color: var(--green-400); }
+    .countdown-label { margin: 28px 0 12px; color: var(--green-400); font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-size: 12px; }
+    .countdown { display: flex; justify-content: center; gap: 10px; }
+    .countdown .unit {
+      flex: 1 1 0; max-width: 84px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(233, 194, 93, 0.25);
+      border-radius: 12px;
+      padding: 14px 6px;
+    }
+    .countdown .num {
+      display: block;
+      font-size: clamp(24px, 7vw, 34px);
+      font-weight: 700;
+      color: var(--gold-300);
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+    .countdown .cap { display: block; margin-top: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--green-400); }
   </style>
 </head>
 <body>
@@ -70,7 +88,38 @@
       We're curled up and resting right now. Check back in around
       <strong>November</strong> — or when you get new emails kicking off the new season.
     </p>
+    <p class="countdown-label">Snakesmas countdown</p>
+    <div class="countdown" aria-live="polite">
+      <div class="unit"><span class="num" id="cd-days">--</span><span class="cap">Days</span></div>
+      <div class="unit"><span class="num" id="cd-hours">--</span><span class="cap">Hours</span></div>
+      <div class="unit"><span class="num" id="cd-mins">--</span><span class="cap">Mins</span></div>
+      <div class="unit"><span class="num" id="cd-secs">--</span><span class="cap">Secs</span></div>
+    </div>
     <p class="footer">🎁 See you soon. — The Secret Snakes den</p>
   </main>
+  <script>
+    (function () {
+      // Snakesmas: December 25, 2026 (local time). Countdown freezes at zero.
+      var target = new Date(2026, 11, 25, 0, 0, 0).getTime();
+      var els = {
+        days: document.getElementById("cd-days"),
+        hours: document.getElementById("cd-hours"),
+        mins: document.getElementById("cd-mins"),
+        secs: document.getElementById("cd-secs")
+      };
+      function pad(n) { return String(n).padStart(2, "0"); }
+      function tick() {
+        var diff = Math.max(0, target - Date.now());
+        var s = Math.floor(diff / 1000);
+        els.days.textContent = Math.floor(s / 86400);
+        els.hours.textContent = pad(Math.floor((s % 86400) / 3600));
+        els.mins.textContent = pad(Math.floor((s % 3600) / 60));
+        els.secs.textContent = pad(s % 60);
+        if (diff === 0 && tick._timer) { clearInterval(tick._timer); }
+      }
+      tick();
+      tick._timer = setInterval(tick, 1000);
+    })();
+  </script>
 </body>
 </html>
