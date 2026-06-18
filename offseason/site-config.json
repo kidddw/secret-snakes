@@ -3,7 +3,7 @@
   "InstanceId": "i-095bd5e15981b7b42",
   "Region": "us-east-2",
   "Domain": "secretsnakes.com",
-  "HostedZoneId": "FILL_ME_AFTER_ROUTE53_SETUP",
-  "ElasticIp": "FILL_ME_AFTER_EIP_ALLOCATION",
-  "CloudFrontDomain": "FILL_ME_AFTER_CLOUDFRONT_SETUP"
+  "HostedZoneId": "Z08917701869CHB28OL50",
+  "ElasticIp": "18.227.64.34",
+  "CloudFrontDomain": "d2a5bubs2nsu9x.cloudfront.net"
 }
